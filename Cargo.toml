@@ -10,3 +10,4 @@ readme = "README.md"
 
 [dependencies]
 nom = "~0.3.0"
+lines = "0.0.3"
