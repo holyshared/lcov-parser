@@ -1,5 +1,6 @@
 #[macro_use]
 extern crate nom;
+extern crate lines;
 
 #[derive(Debug, PartialEq)]
 pub enum LcovRecord
@@ -10,4 +11,5 @@ pub enum LcovRecord
     EndOfRecord
 }
 
-mod parser;
+mod combinator;
+pub mod parser;
