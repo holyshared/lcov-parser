@@ -1,0 +1,7 @@
+[package]
+name = "lcov-parser"
+version = "0.1.0"
+authors = ["holyshared <holy.shared.design@gmail.com>"]
+
+[dependencies]
+nom = "~0.3.0"
