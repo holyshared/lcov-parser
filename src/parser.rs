@@ -1,9 +1,11 @@
 use LcovRecord;
+use RecordError;
 use combinator:: { record };
 use combinator;
 use nom:: { IResult };
 use lines::linereader:: { LineReader };
 use std::io:: { Read, Error, ErrorKind, Result };
+use std::error::Error as ErrorDescription;
 use std::fs:: { File };
 use std::str::{ from_utf8 };
 
@@ -15,65 +17,71 @@ pub fn record_from(input : &[u8]) -> Result<LcovRecord> {
     }
 }
 
-pub struct RecordParser<R> {
-    reader: LineReader<R>
-}
 
-pub trait RecordReceiver {
-    fn receive(&mut self, result : &Result<LcovRecord>);
-}
+pub trait LCOVParser {
+    fn parse<R: Read>(&mut self, reader: R) {
+        let mut lr = LineReader::new(reader);
 
-impl<R: Read> RecordParser<R> {
-    fn new(reader: R) -> Self {
-        RecordParser {
-            reader: LineReader::new(reader)
-        }
-    }
-    fn parse<P: RecordReceiver>(&mut self, receiver: &mut P) {
         loop {
-            let result = self.reader.read_line();
+            let result = lr.read_line();
             let line = match result {
                 Ok(b) if b.is_empty() => { break; },
                 Ok(line) => {
-                    let r = record_from(line);
-                    receiver.receive(&r);
-                }
+                    match record_from(line) {
+                        Ok(ref r) => self.complete(r),
+                        Err(e) => {
+                            let err = RecordError {
+                                line_number: 0,
+                                message: e.description().to_string(),
+                                record: from_utf8(line).unwrap().to_string()
+                            };
+                            self.failed(&err)
+                        }
+                    }
+                },
                 Err(e) => { break; }
             };
         }
     }
+    fn complete(&mut self, rc: &LcovRecord);
+    fn failed(&mut self, error: &RecordError);
 }
-
-
-
-
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use LcovRecord;
+    use RecordError;
     use std::fs::File;
     use std::io:: { Result };
 
-    struct TestReceiver {
-        record_count: u32
+    struct TestParser {
+        records: Vec<LcovRecord>,
+        record_errors: Vec<RecordError>
     }
 
-    impl RecordReceiver for TestReceiver {
-        fn receive(&mut self, result: &Result<LcovRecord>) {
-            self.record_count = self.record_count + 1;
+    impl TestParser {
+        fn new() -> Self {
+            TestParser { records: vec!(), record_errors: vec!() }
+        }
+    }
+
+    impl LCOVParser for TestParser {
+        fn complete(&mut self, result: &LcovRecord) {
+            self.records.push(result.clone());
+        }
+        fn failed(&mut self, error: &RecordError) {
+            self.record_errors.push(error.clone());
         }
     }
 
     #[test]
     fn test_parse_from_file() {
-        let mut r = TestReceiver { record_count: 0 };
         let mut f = File::open("./fixture/report.lcov").unwrap();
-        let mut parser = RecordParser::new(f);
+        let mut parser = TestParser::new();
 
-        parser.parse(&mut r);
+        parser.parse(&f);
 
-        assert_eq!(r.record_count, 1);
+        assert_eq!(parser.records.len(), 1);
     }
 }
