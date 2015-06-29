@@ -1,3 +1,42 @@
+/// # Examples
+///
+/// ```
+/// use lcov_parser::record:: { LCOVRecord };
+/// use lcov_parser::parser:: { LCOVParser, RecordError };
+/// use std::io:: { Error };
+/// use std::fs::File;
+///
+/// struct TestParser {
+///     records: Vec<LCOVRecord>,
+///     record_errors: Vec<RecordError>
+/// }
+///
+/// impl TestParser {
+///     fn new() -> Self {
+///         TestParser { records: vec!(), record_errors: vec!() }
+///     }
+/// }
+///
+/// impl LCOVParser for TestParser {
+///     fn complete(&mut self, result: &LCOVRecord) {
+///         self.records.push(result.clone())
+///     }
+///     fn failed(&mut self, error: &RecordError) {
+///         self.record_errors.push(error.clone())
+///     }
+///     fn error(&mut self, error: &Error) {
+///         println!("{:?}", error);
+///     }
+/// }
+///
+/// let f = File::open("./fixture/report.lcov").unwrap();
+/// let mut parser = TestParser::new();
+///
+/// parser.parse(&f);
+///
+/// assert_eq!(parser.records.len(), 1);
+/// ```
+
 use record:: { LCOVRecord };
 use lines::linereader:: { LineReader };
 use std::io:: { Read, Error };
@@ -46,45 +85,4 @@ pub trait LCOVParser {
     fn complete(&mut self, rc: &LCOVRecord);
     fn failed(&mut self, error: &RecordError);
     fn error(&mut self, error: &Error);
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use record:: { LCOVRecord };
-    use std::io:: { Error };
-    use std::fs::File;
-
-    struct TestParser {
-        records: Vec<LCOVRecord>,
-        record_errors: Vec<RecordError>
-    }
-
-    impl TestParser {
-        fn new() -> Self {
-            TestParser { records: vec!(), record_errors: vec!() }
-        }
-    }
-
-    impl LCOVParser for TestParser {
-        fn complete(&mut self, result: &LCOVRecord) {
-            self.records.push(result.clone())
-        }
-        fn failed(&mut self, error: &RecordError) {
-            self.record_errors.push(error.clone())
-        }
-        fn error(&mut self, error: &Error) {
-            println!("{:?}", error);
-        }
-    }
-
-    #[test]
-    fn test_parse_from_file() {
-        let f = File::open("./fixture/report.lcov").unwrap();
-        let mut parser = TestParser::new();
-
-        parser.parse(&f);
-
-        assert_eq!(parser.records.len(), 1);
-    }
 }
