@@ -1,10 +1,6 @@
 use record:: { LcovRecord };
-//use RecordError;
-use combinator:: { record };
-use combinator;
-use nom:: { IResult };
 use lines::linereader:: { LineReader };
-use std::io:: { Read, Error, ErrorKind, Result };
+use std::io:: { Read };
 use std::error::Error as ErrorDescription;
 use std::str::{ from_utf8 };
 
@@ -14,14 +10,6 @@ pub struct RecordError {
     message: String,
     record: String
 }
-
-pub fn record_from(input : &[u8]) -> Result<LcovRecord> {
-    match combinator::record(input) {
-        IResult::Done(_, record) => Ok(record),
-        _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
-    }
-}
-
 
 pub trait LCOVParser {
     fn parse<R: Read>(&mut self, reader: R) {
@@ -40,7 +28,7 @@ pub trait LCOVParser {
         }
     }
     fn parse_record(&mut self, line_number: &u32, line: &[u8]) {
-        match record_from(line) {
+        match LcovRecord::record_from(line) {
             Ok(ref r) => self.complete(r),
             Err(e) => {
                 let err = RecordError {
