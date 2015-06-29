@@ -1,17 +1,26 @@
 use LcovRecord;
-use combinator:: { parse_record };
+use combinator:: { record };
+use combinator;
 use nom:: { IResult };
 use lines::linereader:: { LineReader };
-use std::io:: { Read, Error, ErrorKind };
+use std::io:: { Read, Error, ErrorKind, Result };
 use std::fs:: { File };
 use std::str::{ from_utf8 };
+
+
+pub fn record_from(input : &[u8]) -> Result<LcovRecord> {
+    match combinator::record(input) {
+        IResult::Done(_, record) => Ok(record),
+        _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
+    }
+}
 
 pub struct RecordParser<R> {
     reader: LineReader<R>
 }
 
 pub trait RecordReceiver {
-    fn receive(&mut self, result : &Result<LcovRecord, &str>);
+    fn receive(&mut self, result : &Result<LcovRecord>);
 }
 
 impl<R: Read> RecordParser<R> {
@@ -26,11 +35,7 @@ impl<R: Read> RecordParser<R> {
             let line = match result {
                 Ok(b) if b.is_empty() => { break; },
                 Ok(line) => {
-                    let r = match parse_record(line) {
-                        IResult::Done(_, output) => Result::Ok(output),
-                        IResult::Error(a) => Result::Err("dff"),
-                        IResult::Incomplete(_) => Result::Err("aa")
-                    };
+                    let r = record_from(line);
                     receiver.receive(&r);
                 }
                 Err(e) => { break; }
@@ -39,19 +44,24 @@ impl<R: Read> RecordParser<R> {
     }
 }
 
+
+
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use LcovRecord;
-    use combinator:: { parse_record };
     use std::fs::File;
+    use std::io:: { Result };
 
     struct TestReceiver {
         record_count: u32
     }
 
     impl RecordReceiver for TestReceiver {
-        fn receive(&mut self, result: &Result<LcovRecord, &str>) {
+        fn receive(&mut self, result: &Result<LcovRecord>) {
             self.record_count = self.record_count + 1;
         }
     }

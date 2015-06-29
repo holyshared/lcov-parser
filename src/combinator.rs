@@ -1,5 +1,7 @@
-use nom::{ line_ending };
+use nom::Err as NomError;
+use nom::{ line_ending, IResult, eof };
 use std::str::{ from_utf8, FromStr };
+use std::io::{ Error, ErrorKind, Result };
 use LcovRecord;
 
 named!(test_name<&[u8], LcovRecord>,
@@ -9,7 +11,8 @@ named!(test_name<&[u8], LcovRecord>,
             take_until!("\n"),
             from_utf8
         ) ~
-        line_ending,
+        line_ending ~
+        eof,
         || { LcovRecord::TestName { name: test_name.to_string() } }
     )
 );
@@ -21,7 +24,8 @@ named!(source_file<&[u8], LcovRecord>,
             take_until!("\n"),
             from_utf8
         ) ~
-        line_ending,
+        line_ending ~
+        eof,
         || LcovRecord::SourceFile { file_name: file_name.to_string() }
     )
 );
@@ -38,7 +42,8 @@ named!(data<&[u8], LcovRecord>,
             take_until!("\n"),
             from_utf8
         ) ~
-        line_ending,
+        line_ending ~
+        eof,
         || LcovRecord::Data {
             line_number: FromStr::from_str(line_number).unwrap(),
             executed_count: FromStr::from_str(executed_count).unwrap()
@@ -49,14 +54,17 @@ named!(data<&[u8], LcovRecord>,
 named!(end_of_record<&[u8], LcovRecord>,
     chain!(
         tag!("end_of_record") ~
-        line_ending,
+        line_ending ~
+        eof,
         || LcovRecord::EndOfRecord
     )
 );
 
-named!(pub parse_record<&[u8], LcovRecord>,
+named!(pub record<&[u8], LcovRecord>,
     alt!(test_name | source_file | data | end_of_record)
 );
+
+named!(pub records<&[u8], Vec<LcovRecord> >, many1!(record));
 
 #[cfg(test)]
 mod tests {
@@ -66,7 +74,7 @@ mod tests {
 
     #[test]
     fn test_parse_tn_record() {
-        let result = parse_record(b"TN:foo\n");
+        let result = record(b"TN:foo\n");
         let expected = LcovRecord::TestName { name: "foo".to_string() };
         let expected_remain_input = &b""[..];
 
@@ -75,7 +83,7 @@ mod tests {
 
     #[test]
     fn test_parse_source_file_record() {
-        let result = parse_record(b"SF:foo\n");
+        let result = record(b"SF:foo\n");
         let expected = LcovRecord::SourceFile { file_name: "foo".to_string() };
         let expected_remain_input = &b""[..];
 
@@ -84,7 +92,7 @@ mod tests {
 
    #[test]
    fn test_parse_data_record() {
-       let result = parse_record(b"DA:2,10\n");
+       let result = record(b"DA:2,10\n");
        let expected = LcovRecord::Data { line_number: 2, executed_count: 10 };
        let expected_remain_input = &b""[..];
 
@@ -93,7 +101,7 @@ mod tests {
 
     #[test]
     fn test_parse_end_of_record() {
-        let result = parse_record(b"end_of_record\n");
+        let result = record(b"end_of_record\n");
         let expected_remain_input = &b""[..];
 
         assert_eq!(result, IResult::Done(expected_remain_input, LcovRecord::EndOfRecord));
