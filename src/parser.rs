@@ -33,7 +33,7 @@ pub trait LCOVParser {
                     line_number = line_number + 1;
                     self.parse_record(&line_number, line)
                 },
-                Err(e) => { break; }
+                Err(ref e) => self.error(e)
             };
         }
     }
@@ -45,12 +45,14 @@ pub trait LCOVParser {
     }
     fn complete(&mut self, rc: &LCOVRecord);
     fn failed(&mut self, error: &RecordError);
+    fn error(&mut self, error: &Error);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use record:: { LCOVRecord };
+    use std::io:: { Error };
     use std::fs::File;
 
     struct TestParser {
@@ -66,10 +68,13 @@ mod tests {
 
     impl LCOVParser for TestParser {
         fn complete(&mut self, result: &LCOVRecord) {
-            self.records.push(result.clone());
+            self.records.push(result.clone())
         }
         fn failed(&mut self, error: &RecordError) {
-            self.record_errors.push(error.clone());
+            self.record_errors.push(error.clone())
+        }
+        fn error(&mut self, error: &Error) {
+            println!("{:?}", error);
         }
     }
 
