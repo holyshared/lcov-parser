@@ -1,5 +1,5 @@
-use LcovRecord;
-use RecordError;
+use record:: { LcovRecord };
+//use RecordError;
 use combinator:: { record };
 use combinator;
 use nom:: { IResult };
@@ -8,6 +8,12 @@ use std::io:: { Read, Error, ErrorKind, Result };
 use std::error::Error as ErrorDescription;
 use std::str::{ from_utf8 };
 
+#[derive(Debug, Clone)]
+pub struct RecordError {
+    line_number: u32,
+    message: String,
+    record: String
+}
 
 pub fn record_from(input : &[u8]) -> Result<LcovRecord> {
     match combinator::record(input) {
@@ -53,8 +59,7 @@ pub trait LCOVParser {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use LcovRecord;
-    use RecordError;
+    use record:: { LcovRecord };
     use std::fs::File;
 
     struct TestParser {

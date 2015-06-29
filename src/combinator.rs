@@ -1,6 +1,6 @@
 use nom::{ line_ending, eof };
 use std::str::{ from_utf8, FromStr };
-use LcovRecord;
+use record:: { LcovRecord };
 
 named!(test_name<&[u8], LcovRecord>,
     chain!(
@@ -68,7 +68,7 @@ named!(pub records<&[u8], Vec<LcovRecord> >, many1!(record));
 mod tests {
     use super::*;
     use nom::{ IResult };
-    use LcovRecord;
+    use record:: { LcovRecord };
 
     #[test]
     fn test_parse_tn_record() {
