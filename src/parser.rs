@@ -1,14 +1,24 @@
 use record:: { LcovRecord };
 use lines::linereader:: { LineReader };
-use std::io:: { Read };
+use std::io:: { Read, Error };
 use std::error::Error as ErrorDescription;
 use std::str::{ from_utf8 };
 
 #[derive(Debug, Clone)]
 pub struct RecordError {
-    line_number: u32,
-    message: String,
-    record: String
+    line: u32,
+    record: String,
+    description: String
+}
+
+impl RecordError {
+    fn new(line: &u32, record: &[u8], error: &Error) -> Self {
+        RecordError {
+            line: line.clone(),
+            record: from_utf8(record).unwrap().to_string(),
+            description: error.description().to_string()
+        }
+    }
 }
 
 pub trait LCOVParser {
@@ -29,15 +39,8 @@ pub trait LCOVParser {
     }
     fn parse_record(&mut self, line_number: &u32, line: &[u8]) {
         match LcovRecord::record_from(line) {
-            Ok(ref r) => self.complete(r),
-            Err(e) => {
-                let err = RecordError {
-                    line_number: line_number.clone(),
-                    record: from_utf8(line).unwrap().to_string(),
-                    message: e.description().to_string()
-                };
-                self.failed(&err)
-            }
+            Ok(ref record) => self.complete(record),
+            Err(ref error) => self.failed( &RecordError::new(line_number, line, error))
         }
     }
     fn complete(&mut self, rc: &LcovRecord);
