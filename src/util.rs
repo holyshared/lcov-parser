@@ -3,7 +3,7 @@
 //! provides functions to support the parse.
 
 use record:: { LCOVRecord };
-use parser:: { parse_all };
+use parser:: { parse_all_records };
 use std::ops:: { Fn };
 
 /// processes the records in order
@@ -18,7 +18,7 @@ use std::ops:: { Fn };
 pub fn each_records<F>(input: &[u8], callback: F)
     where F : Fn(&LCOVRecord) {
 
-    match parse_all(input) {
+    match parse_all_records(input) {
         Ok(records) => {
             for record in records.iter() {
                 callback(&record)

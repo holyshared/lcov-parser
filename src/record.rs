@@ -1,6 +1,5 @@
-use combinator;
-use nom:: { IResult };
-use std::io:: { Error, ErrorKind, Result };
+use std::io:: { Result };
+use parser:: { parse_record };
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum LCOVRecord
@@ -26,9 +25,6 @@ impl LCOVRecord {
     /// assert_eq!(actual, expected);
     /// ```
     pub fn record_from(input : &[u8]) -> Result<Self> {
-        match combinator::record(input) {
-            IResult::Done(_, record) => Ok(record),
-            _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
-        }
+        parse_record(input)
     }
 }

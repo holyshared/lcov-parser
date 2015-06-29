@@ -91,19 +91,38 @@ pub trait LCOVParser {
     fn error(&mut self, error: &Error);
 }
 
+/// parse the record
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser::parser:: { parse_record };
+/// use lcov_parser::record:: { LCOVRecord };
+///
+/// let result = parse_record(b"TN:test_name\n");
+///
+/// assert_eq!(result.unwrap(), LCOVRecord::TestName { name: "test_name".to_string() } );
+/// ```
+pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
+    match combinator::record(input) {
+        IResult::Done(_, record) => Ok(record),
+        _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
+    }
+}
+
 /// parse all the records
 ///
 /// # Examples
 ///
 /// ```
-/// use lcov_parser::parser:: { parse_all };
+/// use lcov_parser::parser:: { parse_all_records };
 /// use lcov_parser::record:: { LCOVRecord };
 ///
-/// let result = parse_all(b"TN:test_name\n");
+/// let result = parse_all_records(b"TN:test_name\n");
 ///
 /// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName { name: "test_name".to_string() } ));
 /// ```
-pub fn parse_all(input: &[u8]) -> Result<Vec<LCOVRecord>> {
+pub fn parse_all_records(input: &[u8]) -> Result<Vec<LCOVRecord>> {
     match combinator::records(input) {
         IResult::Done(_, output) => Ok(output),
         _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
