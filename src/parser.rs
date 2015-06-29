@@ -6,7 +6,6 @@ use nom:: { IResult };
 use lines::linereader:: { LineReader };
 use std::io:: { Read, Error, ErrorKind, Result };
 use std::error::Error as ErrorDescription;
-use std::fs:: { File };
 use std::str::{ from_utf8 };
 
 
@@ -20,27 +19,31 @@ pub fn record_from(input : &[u8]) -> Result<LcovRecord> {
 
 pub trait LCOVParser {
     fn parse<R: Read>(&mut self, reader: R) {
+        let mut line_number = 0;
         let mut lr = LineReader::new(reader);
 
         loop {
-            let result = lr.read_line();
-            let line = match result {
+            match lr.read_line() {
                 Ok(b) if b.is_empty() => { break; },
-                Ok(line) => {
-                    match record_from(line) {
-                        Ok(ref r) => self.complete(r),
-                        Err(e) => {
-                            let err = RecordError {
-                                line_number: 0,
-                                message: e.description().to_string(),
-                                record: from_utf8(line).unwrap().to_string()
-                            };
-                            self.failed(&err)
-                        }
-                    }
+                Ok(ref line) => {
+                    line_number = line_number + 1;
+                    self.parse_record(&line_number, line)
                 },
                 Err(e) => { break; }
             };
+        }
+    }
+    fn parse_record(&mut self, line_number: &u32, line: &[u8]) {
+        match record_from(line) {
+            Ok(ref r) => self.complete(r),
+            Err(e) => {
+                let err = RecordError {
+                    line_number: line_number.clone(),
+                    record: from_utf8(line).unwrap().to_string(),
+                    message: e.description().to_string()
+                };
+                self.failed(&err)
+            }
         }
     }
     fn complete(&mut self, rc: &LcovRecord);
@@ -53,7 +56,6 @@ mod tests {
     use LcovRecord;
     use RecordError;
     use std::fs::File;
-    use std::io:: { Result };
 
     struct TestParser {
         records: Vec<LcovRecord>,
@@ -77,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_parse_from_file() {
-        let mut f = File::open("./fixture/report.lcov").unwrap();
+        let f = File::open("./fixture/report.lcov").unwrap();
         let mut parser = TestParser::new();
 
         parser.parse(&f);
