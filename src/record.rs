@@ -17,7 +17,7 @@ impl LCOVRecord {
     /// # Examples
     ///
     /// ```
-    /// use lcov_parser::record::LCOVRecord;
+    /// use lcov_parser:: { LCOVRecord };
     ///
     /// let actual = LCOVRecord::record_from(b"TN:product_test\n").unwrap();
     /// let expected = LCOVRecord::TestName { name: "product_test".to_string() };

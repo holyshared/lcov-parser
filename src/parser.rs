@@ -3,8 +3,7 @@
 /// # Examples
 ///
 /// ```
-/// use lcov_parser::record:: { LCOVRecord };
-/// use lcov_parser::parser:: { LCOVParser, RecordError };
+/// use lcov_parser:: { LCOVRecord, LCOVParser, RecordError };
 /// use std::io:: { Error };
 /// use std::fs::File;
 ///
@@ -40,7 +39,7 @@
 /// ```
 
 use record:: { LCOVRecord };
-use combinator;
+use combinator:: { record, records };
 use lines::linereader:: { LineReader };
 use nom:: { IResult };
 use std::io:: { Read, Error, ErrorKind, Result };
@@ -96,15 +95,14 @@ pub trait LCOVParser {
 /// # Examples
 ///
 /// ```
-/// use lcov_parser::parser:: { parse_record };
-/// use lcov_parser::record:: { LCOVRecord };
+/// use lcov_parser:: { LCOVRecord, parse_record };
 ///
 /// let result = parse_record(b"TN:test_name\n");
 ///
 /// assert_eq!(result.unwrap(), LCOVRecord::TestName { name: "test_name".to_string() } );
 /// ```
 pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
-    match combinator::record(input) {
+    match record(input) {
         IResult::Done(_, record) => Ok(record),
         _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
     }
@@ -115,15 +113,14 @@ pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
 /// # Examples
 ///
 /// ```
-/// use lcov_parser::parser:: { parse_all_records };
-/// use lcov_parser::record:: { LCOVRecord };
+/// use lcov_parser:: { LCOVRecord, parse_all_records };
 ///
 /// let result = parse_all_records(b"TN:test_name\n");
 ///
 /// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName { name: "test_name".to_string() } ));
 /// ```
 pub fn parse_all_records(input: &[u8]) -> Result<Vec<LCOVRecord>> {
-    match combinator::records(input) {
+    match records(input) {
         IResult::Done(_, output) => Ok(output),
         _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
     }

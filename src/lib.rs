@@ -4,6 +4,10 @@
 extern crate nom;
 extern crate lines;
 
+pub use self::record::*;
+pub use self::parser::*;
+pub use self::util::*;
+
 mod combinator;
 
 pub mod record;

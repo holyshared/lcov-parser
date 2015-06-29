@@ -11,7 +11,7 @@ use std::ops:: { Fn };
 /// # Examples
 ///
 /// ```
-/// use lcov_parser::util:: { each_records };
+/// use lcov_parser:: { each_records };
 ///
 /// each_records(b"TN:test_name\n", |r| println!("{:?}", r))
 /// ```
