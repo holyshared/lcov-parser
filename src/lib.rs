@@ -8,3 +8,4 @@ mod combinator;
 
 pub mod record;
 pub mod parser;
+pub mod util;

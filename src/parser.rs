@@ -1,3 +1,5 @@
+/// Parser of LCOV report.
+///
 /// # Examples
 ///
 /// ```
@@ -38,8 +40,10 @@
 /// ```
 
 use record:: { LCOVRecord };
+use combinator;
 use lines::linereader:: { LineReader };
-use std::io:: { Read, Error };
+use nom:: { IResult };
+use std::io:: { Read, Error, ErrorKind, Result };
 use std::error::Error as ErrorDescription;
 use std::str::{ from_utf8 };
 
@@ -85,4 +89,23 @@ pub trait LCOVParser {
     fn complete(&mut self, rc: &LCOVRecord);
     fn failed(&mut self, error: &RecordError);
     fn error(&mut self, error: &Error);
+}
+
+/// parse all the records
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser::parser:: { parse_all };
+/// use lcov_parser::record:: { LCOVRecord };
+///
+/// let result = parse_all(b"TN:test_name\n");
+///
+/// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName { name: "test_name".to_string() } ));
+/// ```
+pub fn parse_all(input: &[u8]) -> Result<Vec<LCOVRecord>> {
+    match combinator::records(input) {
+        IResult::Done(_, output) => Ok(output),
+        _ => Err(Error::new(ErrorKind::InvalidInput, "The record of file that can not be parsed."))
+    }
 }
