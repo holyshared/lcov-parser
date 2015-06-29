@@ -3,7 +3,7 @@ use nom:: { IResult };
 use std::io:: { Error, ErrorKind, Result };
 
 #[derive(Debug, PartialEq, Clone)]
-pub enum LcovRecord
+pub enum LCOVRecord
 {
     TestName { name: String },
     SourceFile { file_name: String },
@@ -11,7 +11,7 @@ pub enum LcovRecord
     EndOfRecord
 }
 
-impl LcovRecord {
+impl LCOVRecord {
     pub fn record_from(input : &[u8]) -> Result<Self> {
         match combinator::record(input) {
             IResult::Done(_, record) => Ok(record),
