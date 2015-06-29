@@ -1,3 +1,13 @@
+//! The parser combinators for record.
+//!
+//! Supported record types are as follows.
+//! Please see the following page for [the format](http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php).
+//!
+//! * TN:<test name>
+//! * SF:<absolute path to the source file>
+//! * DA:<line number>,<execution count>[,<checksum>]
+//! * end_of_record
+
 use nom::{ line_ending, eof };
 use std::str::{ from_utf8, FromStr };
 use record:: { LCOVRecord };
