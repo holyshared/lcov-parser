@@ -3,5 +3,6 @@ extern crate nom;
 extern crate lines;
 
 mod combinator;
-mod record;
+
+pub mod record;
 pub mod parser;
