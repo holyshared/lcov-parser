@@ -1,7 +1,5 @@
-use nom::Err as NomError;
-use nom::{ line_ending, IResult, eof };
+use nom::{ line_ending, eof };
 use std::str::{ from_utf8, FromStr };
-use std::io::{ Error, ErrorKind, Result };
 use LcovRecord;
 
 named!(test_name<&[u8], LcovRecord>,
