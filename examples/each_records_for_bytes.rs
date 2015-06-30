@@ -16,7 +16,7 @@ fn main() {
         match record {
             LCOVRecord::TestName { name } => println!("Test: {}", name),
             LCOVRecord::SourceFile { file_name } => println!("File: {}", file_name),
-            LCOVRecord::Data { line_number, executed_count } => println!("Line: {}, Executed: {}", line_number, executed_count),
+            LCOVRecord::Data { line_number, executed_count, checksum: _ } => println!("Line: {}, Executed: {}", line_number, executed_count),
             LCOVRecord::EndOfRecord => println!("Finish")
         }
     });

@@ -51,7 +51,8 @@ named!(data<&[u8], LCOVRecord>,
         line_ending,
         || LCOVRecord::Data {
             line_number: FromStr::from_str(line_number).unwrap(),
-            executed_count: FromStr::from_str(executed_count).unwrap()
+            executed_count: FromStr::from_str(executed_count).unwrap(),
+            checksum: None
         }
     )
 );
@@ -97,7 +98,7 @@ mod tests {
    #[test]
    fn test_parse_data_record() {
        let result = record(b"DA:2,10\n");
-       let expected = LCOVRecord::Data { line_number: 2, executed_count: 10 };
+       let expected = LCOVRecord::Data { line_number: 2, executed_count: 10, checksum: None };
        let expected_remain_input = &b""[..];
 
        assert_eq!(result, IResult::Done(expected_remain_input, expected));

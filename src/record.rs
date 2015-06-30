@@ -2,6 +2,7 @@
 
 use std::convert:: { From };
 use std::vec:: { Vec };
+use std::option:: { Option };
 use parser:: { parse_record };
 
 #[derive(Debug, PartialEq, Clone)]
@@ -9,7 +10,7 @@ pub enum LCOVRecord
 {
     TestName { name: String },
     SourceFile { file_name: String },
-    Data { line_number: u32, executed_count: u32 },
+    Data { line_number: u32, executed_count: u32, checksum: Option<String> },
     EndOfRecord
 }
 
