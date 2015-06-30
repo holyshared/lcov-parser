@@ -1,3 +1,30 @@
+//! Parser of LCOV report.
+
+use record:: { LCOVRecord };
+use combinator:: { record, records };
+use lines::linereader:: { LineReader };
+use nom:: { IResult };
+use std::io:: { Read, Error, ErrorKind, Result };
+use std::error::Error as ErrorDescription;
+use std::str::{ from_utf8 };
+
+#[derive(Debug, Clone)]
+pub struct RecordError {
+    line: u32,
+    record: String,
+    description: String
+}
+
+impl RecordError {
+    fn new(line: &u32, record: &[u8], error: &Error) -> Self {
+        RecordError {
+            line: line.clone(),
+            record: from_utf8(record).unwrap().to_string(),
+            description: error.description().to_string()
+        }
+    }
+}
+
 /// Parser of LCOV report.
 ///
 /// # Examples
@@ -37,32 +64,6 @@
 ///
 /// assert_eq!(parser.records.len(), 1);
 /// ```
-
-use record:: { LCOVRecord };
-use combinator:: { record, records };
-use lines::linereader:: { LineReader };
-use nom:: { IResult };
-use std::io:: { Read, Error, ErrorKind, Result };
-use std::error::Error as ErrorDescription;
-use std::str::{ from_utf8 };
-
-#[derive(Debug, Clone)]
-pub struct RecordError {
-    line: u32,
-    record: String,
-    description: String
-}
-
-impl RecordError {
-    fn new(line: &u32, record: &[u8], error: &Error) -> Self {
-        RecordError {
-            line: line.clone(),
-            record: from_utf8(record).unwrap().to_string(),
-            description: error.description().to_string()
-        }
-    }
-}
-
 pub trait LCOVParser {
     fn parse<R: Read>(&mut self, reader: R) {
         let mut line_number = 0;

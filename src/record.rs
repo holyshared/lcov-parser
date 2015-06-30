@@ -1,3 +1,5 @@
+//! Module of LCOV Record.
+
 use std::convert:: { From };
 use std::vec:: { Vec };
 use parser:: { parse_record };
