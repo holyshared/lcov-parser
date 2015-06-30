@@ -45,14 +45,24 @@ named!(data<&[u8], LCOVRecord>,
         ) ~
         tag!(",") ~
         executed_count: map_res!(
-            take_until!("\n"),
+            take_until_either!("\n,"),
             from_utf8
+        ) ~
+        checksum: opt!(
+            chain!(
+                tag!(",") ~
+                checksum: map_res!(
+                    take_until!("\n"),
+                    from_utf8
+                ),
+                || { checksum.to_string() }
+            )
         ) ~
         line_ending,
         || LCOVRecord::Data {
             line_number: FromStr::from_str(line_number).unwrap(),
             executed_count: FromStr::from_str(executed_count).unwrap(),
-            checksum: None
+            checksum: checksum
         }
     )
 );
@@ -93,16 +103,25 @@ mod tests {
         let expected_remain_input = &b""[..];
 
         assert_eq!(result, IResult::Done(expected_remain_input, expected));
-   }
+    }
 
-   #[test]
-   fn test_parse_data_record() {
-       let result = record(b"DA:2,10\n");
-       let expected = LCOVRecord::Data { line_number: 2, executed_count: 10, checksum: None };
-       let expected_remain_input = &b""[..];
+    #[test]
+    fn test_parse_data_record() {
+        let result = record(b"DA:2,10\n");
+        let expected = LCOVRecord::Data { line_number: 2, executed_count: 10, checksum: None };
+        let expected_remain_input = &b""[..];
 
-       assert_eq!(result, IResult::Done(expected_remain_input, expected));
-   }
+        assert_eq!(result, IResult::Done(expected_remain_input, expected));
+    }
+
+    #[test]
+    fn test_parse_data_record_with_checksum() {
+        let result = record(b"DA:2,10,abcd\n");
+        let expected = LCOVRecord::Data { line_number: 2, executed_count: 10, checksum: Some("abcd".to_string()) };
+        let expected_remain_input = &b""[..];
+
+        assert_eq!(result, IResult::Done(expected_remain_input, expected));
+    }
 
     #[test]
     fn test_parse_end_of_record() {
