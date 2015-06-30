@@ -8,7 +8,7 @@
 //! * DA:<line number>,<execution count>[,<checksum>]
 //! * end_of_record
 
-use nom::{ line_ending, eof };
+use nom::{ line_ending };
 use std::str::{ from_utf8, FromStr };
 use record:: { LCOVRecord };
 
@@ -19,8 +19,7 @@ named!(test_name<&[u8], LCOVRecord>,
             take_until!("\n"),
             from_utf8
         ) ~
-        line_ending ~
-        eof,
+        line_ending,
         || { LCOVRecord::TestName { name: test_name.to_string() } }
     )
 );
@@ -32,8 +31,7 @@ named!(source_file<&[u8], LCOVRecord>,
             take_until!("\n"),
             from_utf8
         ) ~
-        line_ending ~
-        eof,
+        line_ending,
         || LCOVRecord::SourceFile { file_name: file_name.to_string() }
     )
 );
@@ -50,8 +48,7 @@ named!(data<&[u8], LCOVRecord>,
             take_until!("\n"),
             from_utf8
         ) ~
-        line_ending ~
-        eof,
+        line_ending,
         || LCOVRecord::Data {
             line_number: FromStr::from_str(line_number).unwrap(),
             executed_count: FromStr::from_str(executed_count).unwrap()
@@ -62,8 +59,7 @@ named!(data<&[u8], LCOVRecord>,
 named!(end_of_record<&[u8], LCOVRecord>,
     chain!(
         tag!("end_of_record") ~
-        line_ending ~
-        eof,
+        line_ending,
         || LCOVRecord::EndOfRecord
     )
 );
