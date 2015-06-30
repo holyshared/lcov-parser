@@ -1,4 +1,5 @@
 use std::io:: { Result };
+use std::convert:: { From };
 use parser:: { parse_record };
 
 #[derive(Debug, PartialEq, Clone)]
@@ -26,5 +27,23 @@ impl LCOVRecord {
     /// ```
     pub fn record_from(input : &[u8]) -> Result<Self> {
         parse_record(input)
+    }
+}
+
+/// Parse the record from &str.
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser:: { LCOVRecord };
+///
+/// let actual = LCOVRecord::from("TN:product_test\n");
+/// let expected = LCOVRecord::TestName { name: "product_test".to_string() };
+///
+/// assert_eq!(actual, expected);
+/// ```
+impl<'a> From<&'a str> for LCOVRecord {
+    fn from(input: &'a str) -> Self {
+        parse_record(input.as_bytes()).unwrap()
     }
 }
