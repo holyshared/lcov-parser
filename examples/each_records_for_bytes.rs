@@ -14,9 +14,9 @@ fn main() {
 
     each_records(content.as_bytes(), | record | {
         match record {
-            LCOVRecord::TestName { name } => println!("Test: {}", name),
-            LCOVRecord::SourceFile { file_name } => println!("File: {}", file_name),
-            LCOVRecord::Data { line_number, executed_count } => println!("Line: {}, Executed: {}", line_number, executed_count),
+            LCOVRecord::TestName(name) => println!("Test: {}", name),
+            LCOVRecord::SourceFile(file_name) => println!("File: {}", file_name),
+            LCOVRecord::Data(line_number, execution_count, _) => println!("Line: {}, Executed: {}", line_number, execution_count),
             LCOVRecord::EndOfRecord => println!("Finish")
         }
     });

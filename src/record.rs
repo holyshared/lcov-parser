@@ -2,15 +2,16 @@
 
 use std::convert:: { From };
 use std::vec:: { Vec };
+use std::option:: { Option };
 use parser:: { parse_record };
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum LCOVRecord
 {
-    TestName { name: String },
-    SourceFile { file_name: String },
-    Data { line_number: u32, executed_count: u32 },
-    EndOfRecord
+    TestName(String),               // TN:<test name>
+    SourceFile(String),             // SF:<absolute path to the source file>
+    Data(u32, u32, Option<String>), // DA:<line number>,<execution count>[,<checksum>]
+    EndOfRecord                     // end_of_record
 }
 
 /// Parse the record from [u8].
@@ -21,7 +22,7 @@ pub enum LCOVRecord
 /// use lcov_parser:: { LCOVRecord };
 ///
 /// let actual = LCOVRecord::from("TN:product_test\n".as_bytes());
-/// let expected = LCOVRecord::TestName { name: "product_test".to_string() };
+/// let expected = LCOVRecord::TestName("product_test".to_string());
 ///
 /// assert_eq!(actual, expected);
 /// ```
@@ -39,7 +40,7 @@ impl<'a> From<&'a [u8]> for LCOVRecord {
 /// use lcov_parser:: { LCOVRecord };
 ///
 /// let actual = LCOVRecord::from("TN:product_test\n");
-/// let expected = LCOVRecord::TestName { name: "product_test".to_string() };
+/// let expected = LCOVRecord::TestName("product_test".to_string());
 ///
 /// assert_eq!(actual, expected);
 /// ```
@@ -59,7 +60,7 @@ impl<'a> From<&'a str> for LCOVRecord {
 /// let input: Vec<u8> = "TN:product_test\n".bytes().collect();
 ///
 /// let actual = LCOVRecord::from(&input);
-/// let expected = LCOVRecord::TestName { name: "product_test".to_string() };
+/// let expected = LCOVRecord::TestName("product_test".to_string());
 ///
 /// assert_eq!(actual, expected);
 /// ```

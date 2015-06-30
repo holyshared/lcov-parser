@@ -100,7 +100,7 @@ pub trait LCOVParser {
 ///
 /// let result = parse_record(b"TN:test_name\n");
 ///
-/// assert_eq!(result.unwrap(), LCOVRecord::TestName { name: "test_name".to_string() } );
+/// assert_eq!(result.unwrap(), LCOVRecord::TestName("test_name".to_string()));
 /// ```
 pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
     match record(input) {
@@ -118,7 +118,7 @@ pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
 ///
 /// let result = parse_all_records(b"TN:test_name\n");
 ///
-/// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName { name: "test_name".to_string() } ));
+/// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName("test_name".to_string())));
 /// ```
 pub fn parse_all_records(input: &[u8]) -> Result<Vec<LCOVRecord>> {
     match records(input) {
