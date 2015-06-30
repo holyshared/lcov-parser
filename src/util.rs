@@ -16,12 +16,12 @@ use std::ops:: { Fn };
 /// each_records(b"TN:test_name\n", |r| println!("{:?}", r))
 /// ```
 pub fn each_records<F>(input: &[u8], callback: F)
-    where F : Fn(&LCOVRecord) {
+    where F : Fn(LCOVRecord) {
 
     match parse_all_records(input) {
         Ok(records) => {
             for record in records.iter() {
-                callback(&record)
+                callback(record.clone())
             }
         },
         Err(error) => panic!("{:?}", error)
