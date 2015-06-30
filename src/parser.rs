@@ -80,7 +80,7 @@ pub trait LCOVParser {
         }
     }
     fn parse_record(&mut self, line_number: &u32, line: &[u8]) {
-        match LCOVRecord::record_from(line) {
+        match parse_record(line) {
             Ok(ref record) => self.complete(record),
             Err(ref error) => self.failed( &RecordError::new(line_number, line, error))
         }
