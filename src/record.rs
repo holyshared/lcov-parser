@@ -32,6 +32,24 @@ impl LCOVRecord {
     }
 }
 
+/// Parse the record from [u8].
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser:: { LCOVRecord };
+///
+/// let actual = LCOVRecord::from("TN:product_test\n".as_bytes());
+/// let expected = LCOVRecord::TestName { name: "product_test".to_string() };
+///
+/// assert_eq!(actual, expected);
+/// ```
+impl<'a> From<&'a [u8]> for LCOVRecord {
+    fn from(input: &'a [u8]) -> Self {
+        parse_record(input).unwrap()
+    }
+}
+
 /// Parse the record from &str.
 ///
 /// # Examples
