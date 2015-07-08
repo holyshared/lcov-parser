@@ -8,7 +8,7 @@
 //! * DA:<line number>,<execution count>[,<checksum>]
 //! * end_of_record
 
-use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, sep_by, newline, between, parser, Parser, ParserExt, ParseResult };
+use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, sep_by, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
 use record:: { LCOVRecord };
@@ -46,7 +46,7 @@ fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<I
 #[inline]
 fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let source_file =  parser(string_value::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
-    between(string("SF:"), newline(), source_file).parse_state(input)
+    string("SF:").with(source_file).parse_state(input)
 }
 
 #[inline]
@@ -58,12 +58,12 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
         let (line_number, execution_count, checksum) = t;
         LCOVRecord::Data(line_number, execution_count, checksum)
     });
-    between(string("DA:"), newline(), record).parse_state(input)
+    string("DA:").with(record).parse_state(input)
 }
 
 #[inline]
 fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_state(input)
+    string("end_of_record").with(value(LCOVRecord::EndOfRecord)).parse_state(input)
 }
 
 #[inline]
@@ -90,5 +90,29 @@ mod tests {
     fn test_name() {
         let result = parser(record).parse("TN:test_name");
         assert_eq!(result.unwrap(), (LCOVRecord::TestName("test_name".to_string()), ""));
+    }
+
+    #[test]
+    fn source_file() {
+        let result = parser(record).parse("SF:/path/to/source.rs");
+        assert_eq!(result.unwrap(), (LCOVRecord::SourceFile("/path/to/source.rs".to_string()), ""));
+    }
+
+    #[test]
+    fn data() {
+        let result = parser(record).parse("DA:1,2");
+        assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, None), ""));
+    }
+
+    #[test]
+    fn data_with_checksum() {
+        let result = parser(record).parse("DA:1,2,3sdfjiji56");
+        assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, Some("3sdfjiji56".to_string())), ""));
+    }
+
+    #[test]
+    fn end_of_record() {
+        let result = parser(record).parse("end_of_record");
+        assert_eq!(result.unwrap(), (LCOVRecord::EndOfRecord, ""));
     }
 }
