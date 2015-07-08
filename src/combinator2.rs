@@ -13,11 +13,11 @@ use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
 use record:: { LCOVRecord };
 
-#[derive(Debug, PartialEq)]
-pub enum RecordResult {
-    Record(LCOVRecord),
-    RecordArray(Vec<LCOVRecord>)
-}
+//#[derive(Debug, PartialEq)]
+//pub enum RecordResult {
+//    Record(LCOVRecord),
+//    RecordArray(Vec<LCOVRecord>)
+//}
 
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -29,12 +29,9 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 }
 
 #[inline]
-pub fn records<I>(input: State<I>) -> ParseResult<RecordResult, I> where I: Stream<Item=char> {
+pub fn records<I>(input: State<I>) -> ParseResult<Vec<LCOVRecord>, I> where I: Stream<Item=char> {
     let array = sep_by(parser(record::<I>), token('\n'));
-
-    parser(record::<I>).map(RecordResult::Record)
-        .or(array.map(RecordResult::RecordArray))
-        .parse_state(input)
+    array.map( | records:Vec<LCOVRecord> | records ).parse_state(input)
 }
 
 #[inline]
@@ -85,6 +82,16 @@ mod tests {
     use super::*;
     use parser_combinators:: { parser, Parser };
     use record:: { LCOVRecord };
+
+    #[test]
+    fn records_from() {
+        let result = parser(records).parse("TN:test_name\nSF:/path/to/source.rs");
+        let expect_result = vec![
+            LCOVRecord::TestName("test_name".to_string()),
+            LCOVRecord::SourceFile("/path/to/source.rs".to_string())
+        ];
+        assert_eq!(result.unwrap(), (expect_result, ""));
+    }
 
     #[test]
     fn test_name() {
