@@ -22,8 +22,8 @@ use std::io:: { Result, Error, ErrorKind };
 pub fn parse_record2(input: &[u8]) -> Result<LCOVRecord> {
     match from_utf8(input) {
         Ok(value) => {
-            match parse_for_record(value) {
-                Ok(record) => Ok(record),
+            match parser(record).parse(value) {
+                Ok((record, _)) => Ok(record),
                 Err(error) => Err(Error::new(ErrorKind::InvalidInput, format!("{}", error)))
             }
         },
@@ -52,16 +52,6 @@ pub fn parse_all_records2(input: &[u8]) -> Result<Vec<LCOVRecord>> {
                 Err(error) => Err(Error::new(ErrorKind::InvalidInput, format!("{}", error)))
             }
         },
-        Err(error) => Err(Error::new(ErrorKind::InvalidInput, format!("{}", error)))
-    }
-}
-
-#[inline]
-fn parse_for_record(input: &str) -> Result<LCOVRecord> {
-    let parsed_result = parser(record).parse(input);
-
-    match parsed_result {
-        Ok((record, _)) => Ok(record),
         Err(error) => Err(Error::new(ErrorKind::InvalidInput, format!("{}", error)))
     }
 }
