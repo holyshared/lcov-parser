@@ -3,6 +3,7 @@
 #[macro_use]
 extern crate nom;
 extern crate lines;
+extern crate parser_combinators;
 
 pub use self::record::*;
 pub use self::parser::*;
