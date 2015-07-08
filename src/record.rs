@@ -3,7 +3,7 @@
 use std::convert:: { From };
 use std::vec:: { Vec };
 use std::option:: { Option };
-use parser:: { parse_record };
+use parser2:: { parse_record2 };
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum LCOVRecord
@@ -28,7 +28,7 @@ pub enum LCOVRecord
 /// ```
 impl<'a> From<&'a [u8]> for LCOVRecord {
     fn from(input: &'a [u8]) -> Self {
-        parse_record(input).unwrap()
+        parse_record2(input).unwrap()
     }
 }
 
@@ -46,7 +46,7 @@ impl<'a> From<&'a [u8]> for LCOVRecord {
 /// ```
 impl<'a> From<&'a str> for LCOVRecord {
     fn from(input: &'a str) -> Self {
-        parse_record(input.as_bytes()).unwrap()
+        parse_record2(input.as_bytes()).unwrap()
     }
 }
 
@@ -66,6 +66,6 @@ impl<'a> From<&'a str> for LCOVRecord {
 /// ```
 impl<'a> From<&'a Vec<u8>> for LCOVRecord {
     fn from(input: &'a Vec<u8>) -> Self {
-        parse_record(&input[..]).unwrap()
+        parse_record2(&input[..]).unwrap()
     }
 }
