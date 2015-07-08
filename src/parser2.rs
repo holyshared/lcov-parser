@@ -17,6 +17,8 @@ use std::io:: { Result, Error, ErrorKind };
 ///
 /// assert_eq!(result.unwrap(), LCOVRecord::TestName("test_name".to_string()));
 /// ```
+
+#[inline]
 pub fn parse_record2(input: &[u8]) -> Result<LCOVRecord> {
     match from_utf8(input) {
         Ok(value) => {
@@ -40,6 +42,8 @@ pub fn parse_record2(input: &[u8]) -> Result<LCOVRecord> {
 ///
 /// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName("test_name".to_string())));
 /// ```
+
+#[inline]
 pub fn parse_all_records2(input: &[u8]) -> Result<Vec<LCOVRecord>> {
     match from_utf8(input) {
         Ok(value) => {
@@ -52,6 +56,7 @@ pub fn parse_all_records2(input: &[u8]) -> Result<Vec<LCOVRecord>> {
     }
 }
 
+#[inline]
 fn parse_for_record(input: &str) -> Result<LCOVRecord> {
     let parsed_result = parser(record).parse(input);
 
