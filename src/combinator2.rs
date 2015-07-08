@@ -8,10 +8,16 @@
 //! * DA:<line number>,<execution count>[,<checksum>]
 //! * end_of_record
 
-use parser_combinators:: { many1, digit, string, satisfy, optional, char, value, newline, between, parser, Parser, ParserExt, ParseResult };
+use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, sep_by, newline, between, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
 use record:: { LCOVRecord };
+
+#[derive(Debug, PartialEq)]
+pub enum RecordResult {
+    Record(LCOVRecord),
+    RecordArray(Vec<LCOVRecord>)
+}
 
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -23,9 +29,18 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 }
 
 #[inline]
+pub fn records<I>(input: State<I>) -> ParseResult<RecordResult, I> where I: Stream<Item=char> {
+    let array = sep_by(parser(record::<I>), token('\n'));
+
+    parser(record::<I>).map(RecordResult::Record)
+        .or(array.map(RecordResult::RecordArray))
+        .parse_state(input)
+}
+
+#[inline]
 fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let test_name = parser(string_value::<I>).map( | s: String | LCOVRecord::TestName(s) );
-    between(string("TN:"), newline(), test_name).parse_state(input)
+    string("TN:").with(test_name).parse_state(input)
 }
 
 #[inline]
@@ -37,8 +52,8 @@ fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
 #[inline]
 fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
-    let execution_count = char(',').with( parser(integer_value::<I>) );
-    let checksum = optional( char(',').with( parser(string_value::<I>) ) );
+    let execution_count = token(',').with( parser(integer_value::<I>) );
+    let checksum = optional( token(',').with( parser(string_value::<I>) ) );
     let record = (line_number, execution_count, checksum).map( | t | {
         let (line_number, execution_count, checksum) = t;
         LCOVRecord::Data(line_number, execution_count, checksum)
@@ -63,4 +78,17 @@ fn string_value<I>(input: State<I>) -> ParseResult<String, I> where I: Stream<It
     many1( satisfy( | c: char | c != '\n' ) )
         .map( | s: String | s )
         .parse_state(input)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use parser_combinators:: { parser, Parser };
+    use record:: { LCOVRecord };
+
+    #[test]
+    fn test_name() {
+        let result = parser(record).parse("TN:test_name");
+        assert_eq!(result.unwrap(), (LCOVRecord::TestName("test_name".to_string()), ""));
+    }
 }

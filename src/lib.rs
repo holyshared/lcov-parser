@@ -7,10 +7,13 @@ extern crate parser_combinators;
 
 pub use self::record::*;
 pub use self::parser::*;
+pub use self::combinator2::*;
 pub use self::util::*;
 
 mod combinator;
+//mod combinator2;
 
+pub mod combinator2;
 pub mod record;
 pub mod parser;
 pub mod util;
