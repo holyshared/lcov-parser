@@ -26,7 +26,7 @@ pub enum ParsedResult {
 /// use lcov_parser:: { LCOVParser2, LCOVRecord, ParsedResult };
 ///
 /// let mut parser = LCOVParser2::new("TN:testname\n".as_bytes());
-/// let res1 = parser.read();
+/// let res1 = parser.parse_next();
 ///
 /// assert_eq!(res1, ParsedResult::Ok(LCOVRecord::TestName("testname".to_string()), 1));
 /// ```
@@ -40,7 +40,7 @@ impl<R: Read> LCOVParser2<R> {
     pub fn new(reader: R) -> Self {
         LCOVParser2 { reader: LineReader::new(reader), line: 0 }
     }
-    pub fn read(&mut self) -> ParsedResult {
+    pub fn parse_next(&mut self) -> ParsedResult {
         match self.reader.read_line() {
             Ok(b) if b.is_empty() => ParsedResult::Eof,
             Ok(input) => {
