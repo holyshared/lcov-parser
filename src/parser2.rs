@@ -25,10 +25,12 @@ pub enum ParsedResult {
 /// use std::io:: { Read };
 /// use lcov_parser:: { LCOVParser2, LCOVRecord, ParsedResult };
 ///
-/// let mut parser = LCOVParser2::new("TN:testname\n".as_bytes());
+/// let mut parser = LCOVParser2::new("TN:testname\nSF:/path/to/source.rs\n".as_bytes());
 /// let res1 = parser.parse_next();
+/// let res2 = parser.parse_next();
 ///
 /// assert_eq!(res1, ParsedResult::Ok(LCOVRecord::TestName("testname".to_string()), 1));
+/// assert_eq!(res2, ParsedResult::Ok(LCOVRecord::SourceFile("/path/to/source.rs".to_string()), 2));
 /// ```
 
 pub struct LCOVParser2<R> {
