@@ -3,7 +3,7 @@
 use std::convert:: { From };
 use std::vec:: { Vec };
 use std::option:: { Option };
-use parser2:: { parse_record2 };
+use parser:: { parse_record2 };
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum LCOVRecord
