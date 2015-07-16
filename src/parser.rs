@@ -5,7 +5,7 @@ use lines::linereader:: { LineReader };
 use record:: { LCOVRecord };
 use combinator:: { record };
 use std::str:: { from_utf8, Utf8Error };
-use std::io:: { Read };
+use std::io:: { Read, ErrorKind };
 use std::result:: { Result };
 
 #[derive(PartialEq, Debug)]
@@ -17,7 +17,7 @@ pub enum ParsedResult {
 
 #[derive(PartialEq, Debug)]
 pub enum RecordParsedError {
-    Read,
+    Read(ErrorKind),
     Record(String, i32),
     UTF8(Utf8Error)
 }
@@ -56,7 +56,7 @@ impl<R: Read> LCOVParser<R> {
                     Err(error) => ParsedResult::Err(error)
                 }
             },
-            Err(_) => ParsedResult::Err( RecordParsedError::Read )
+            Err(error) => ParsedResult::Err( RecordParsedError::Read(error.kind()) )
         }
     }
 }
