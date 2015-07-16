@@ -9,17 +9,15 @@ use std::io:: { Read };
 use std::result:: { Result };
 
 #[derive(PartialEq, Debug)]
-pub struct ParsedError(String);
-
-#[derive(PartialEq, Debug)]
 pub enum ParsedResult {
     Ok(LCOVRecord, u32),
     Eof,
-    Err(ParsedError)
+    Err(RecordParsedError)
 }
 
 #[derive(PartialEq, Debug)]
 pub enum RecordParsedError {
+    Read,
     Record(String, i32),
     UTF8(Utf8Error)
 }
@@ -55,10 +53,10 @@ impl<R: Read> LCOVParser<R> {
                 self.line = self.line + 1;
                 match parse_record(input) {
                     Ok(record) => ParsedResult::Ok(record, self.line),
-                    Err(_) => ParsedResult::Err(ParsedError("a".to_string()))
+                    Err(error) => ParsedResult::Err(error)
                 }
             },
-            Err(_) => ParsedResult::Err(ParsedError("a".to_string()))
+            Err(_) => ParsedResult::Err( RecordParsedError::Read )
         }
     }
 }
