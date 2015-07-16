@@ -36,3 +36,21 @@ fn main() {
     });
 }
 ```
+
+LCOVParser
+--------------------------------
+
+When you use the **LCOVParser**, it will be able to control the processing of parse.
+
+```
+let records = "TN:testname\nSF:/path/to/source.rs\n".as_bytes();
+let mut parser = LCOVParser::new(records);
+
+loop {
+	match parser.parse_next() {
+		ParsedResult::Ok(record, _) => println!("{:?}", record),
+		ParsedResult::Eof => { break; },
+		ParsedResult::Err(error) => println!("{:?}", error)
+	}
+}
+```
