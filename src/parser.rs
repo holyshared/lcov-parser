@@ -23,9 +23,9 @@ pub enum ParsedResult {
 ///
 /// ```
 /// use std::io:: { Read };
-/// use lcov_parser:: { LCOVParser2, LCOVRecord, ParsedResult };
+/// use lcov_parser:: { LCOVParser, LCOVRecord, ParsedResult };
 ///
-/// let mut parser = LCOVParser2::new("TN:testname\nSF:/path/to/source.rs\n".as_bytes());
+/// let mut parser = LCOVParser::new("TN:testname\nSF:/path/to/source.rs\n".as_bytes());
 /// let res1 = parser.parse_next();
 /// let res2 = parser.parse_next();
 ///
@@ -33,21 +33,21 @@ pub enum ParsedResult {
 /// assert_eq!(res2, ParsedResult::Ok(LCOVRecord::SourceFile("/path/to/source.rs".to_string()), 2));
 /// ```
 
-pub struct LCOVParser2<R> {
+pub struct LCOVParser<R> {
     line: u32,
     reader: LineReader<R>
 }
 
-impl<R: Read> LCOVParser2<R> {
+impl<R: Read> LCOVParser<R> {
     pub fn new(reader: R) -> Self {
-        LCOVParser2 { reader: LineReader::new(reader), line: 0 }
+        LCOVParser { reader: LineReader::new(reader), line: 0 }
     }
     pub fn parse_next(&mut self) -> ParsedResult {
         match self.reader.read_line() {
             Ok(b) if b.is_empty() => ParsedResult::Eof,
             Ok(input) => {
                 self.line = self.line + 1;
-                match parse_record2(input) {
+                match parse_record(input) {
                     Ok(record) => ParsedResult::Ok(record, self.line),
                     Err(_) => ParsedResult::Err(ParsedError("a".to_string()))
                 }
@@ -64,13 +64,13 @@ impl<R: Read> LCOVParser2<R> {
 /// ```
 /// use lcov_parser:: { LCOVRecord, parse_record2 };
 ///
-/// let result = parse_record2(b"TN:test_name\n");
+/// let result = parse_record(b"TN:test_name\n");
 ///
 /// assert_eq!(result.unwrap(), LCOVRecord::TestName("test_name".to_string()));
 /// ```
 
 #[inline]
-pub fn parse_record2(input: &[u8]) -> Result<LCOVRecord> {
+pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
     match from_utf8(input) {
         Ok(value) => {
             match parser(record).parse(value) {
@@ -89,13 +89,13 @@ pub fn parse_record2(input: &[u8]) -> Result<LCOVRecord> {
 /// ```
 /// use lcov_parser:: { LCOVRecord, parse_all_records2 };
 ///
-/// let result = parse_all_records2(b"TN:test_name\n");
+/// let result = parse_all_records(b"TN:test_name\n");
 ///
 /// assert_eq!(result.unwrap(), vec!( LCOVRecord::TestName("test_name".to_string())));
 /// ```
 
 #[inline]
-pub fn parse_all_records2(input: &[u8]) -> Result<Vec<LCOVRecord>> {
+pub fn parse_all_records(input: &[u8]) -> Result<Vec<LCOVRecord>> {
     match from_utf8(input) {
         Ok(value) => {
             match parser(records).parse(value) {
