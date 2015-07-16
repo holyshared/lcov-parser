@@ -23,11 +23,6 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 }
 
 #[inline]
-pub fn records<I>(input: State<I>) -> ParseResult<Vec<LCOVRecord>, I> where I: Stream<Item=char> {
-    many1(parser(record::<I>)).map( | records:Vec<LCOVRecord> | records ).parse_state(input)
-}
-
-#[inline]
 fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let test_name = parser(string_value::<I>).map( | s: String | LCOVRecord::TestName(s) );
     between(string("TN:"), newline(), test_name).parse_state(input)
@@ -75,16 +70,6 @@ mod tests {
     use super::*;
     use parser_combinators:: { parser, Parser };
     use record:: { LCOVRecord };
-
-    #[test]
-    fn records_from() {
-        let result = parser(records).parse("TN:test_name\nSF:/path/to/source.rs\n");
-        let expect_result = vec![
-            LCOVRecord::TestName("test_name".to_string()),
-            LCOVRecord::SourceFile("/path/to/source.rs".to_string())
-        ];
-        assert_eq!(result.unwrap(), (expect_result, ""));
-    }
 
     #[test]
     fn test_name() {
