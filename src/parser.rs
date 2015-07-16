@@ -7,6 +7,7 @@ use combinator:: { record };
 use std::str:: { from_utf8, Utf8Error };
 use std::io:: { Read, ErrorKind };
 use std::result:: { Result };
+use std::ops:: { Fn };
 
 #[derive(PartialEq, Debug)]
 pub enum ParsedResult {
@@ -87,5 +88,30 @@ pub fn parse_record(input: &[u8]) -> Result<LCOVRecord, RecordParsedError> {
             }
         },
         Err(error) => Err( RecordParsedError::UTF8(error) )
+    }
+}
+
+/// processes the records in order
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser:: { each_records };
+///
+/// each_records(b"TN:test_name\n", |r| println!("{:?}", r))
+/// ```
+
+#[inline]
+pub fn each_records<F>(input: &[u8], callback: F)
+    where F : Fn(LCOVRecord) {
+
+    let mut parser = LCOVParser::new(input);
+
+    loop {
+        match parser.parse_next() {
+            ParsedResult::Ok(record, _) => callback(record),
+            ParsedResult::Eof => { break; },
+            ParsedResult::Err(error) => panic!("{:?}", error)
+        }
     }
 }
