@@ -4,8 +4,9 @@ use parser_combinators:: { parser, Parser };
 use lines::linereader:: { LineReader };
 use record:: { LCOVRecord };
 use combinator:: { record };
-use std::str:: { from_utf8 };
-use std::io:: { Read, Result, Error, ErrorKind };
+use std::str:: { from_utf8, Utf8Error };
+use std::io:: { Read };
+use std::result:: { Result };
 
 #[derive(PartialEq, Debug)]
 pub struct ParsedError(String);
@@ -17,6 +18,11 @@ pub enum ParsedResult {
     Err(ParsedError)
 }
 
+#[derive(PartialEq, Debug)]
+pub enum RecordParsedError {
+    Record(String, i32),
+    UTF8(Utf8Error)
+}
 
 ///
 /// # Examples
@@ -70,14 +76,18 @@ impl<R: Read> LCOVParser<R> {
 /// ```
 
 #[inline]
-pub fn parse_record(input: &[u8]) -> Result<LCOVRecord> {
+pub fn parse_record(input: &[u8]) -> Result<LCOVRecord, RecordParsedError> {
     match from_utf8(input) {
         Ok(value) => {
             match parser(record).parse(value) {
                 Ok((record, _)) => Ok(record),
-                Err(error) => Err(Error::new(ErrorKind::InvalidInput, format!("{}", error)))
+                Err(error) => {
+                    let column = error.position.column;
+                    let source = value.to_string();
+                    Err( RecordParsedError::Record(source, column) )
+                }
             }
         },
-        Err(error) => Err(Error::new(ErrorKind::InvalidInput, format!("{}", error)))
+        Err(error) => Err( RecordParsedError::UTF8(error) )
     }
 }
