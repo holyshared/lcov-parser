@@ -60,6 +60,9 @@ impl<R: Read> LCOVParser<R> {
             Err(error) => ParsedResult::Err( RecordParsedError::Read(error.kind()) )
         }
     }
+    pub fn current_record_count(&self) -> u32 {
+        self.line
+    }
 }
 
 /// parse the record
