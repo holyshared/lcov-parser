@@ -1,1 +1,13 @@
 TN:test
+SF:/path/to/example1.rs
+DA:1,1,3f294832050ffa06064d14a1d5cfb1a8
+DA:2,1,41048c6ea576058eac2235273a715b8f
+DA:3,1,8b1da4971d3beda1d6e4bbcd09921e2b
+DA:4,1,7d9d25f71cb8a5aba86202540a20d405
+end_of_record
+SF:/path/to/example2.rs
+DA:1,0,3f294832050ffa06064d14a1d5cfb1a8
+DA:2,0,41048c6ea576058eac2235273a715b8f
+DA:3,0,8b1da4971d3beda1d6e4bbcd09921e2b
+DA:4,0,7d9d25f71cb8a5aba86202540a20d405
+end_of_record
