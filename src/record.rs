@@ -11,6 +11,9 @@ pub enum LCOVRecord
     TestName(String),               // TN:<test name>
     SourceFile(String),             // SF:<absolute path to the source file>
     Data(u32, u32, Option<String>), // DA:<line number>,<execution count>[,<checksum>]
+    FunctionName(u32, String),      // FN:<line number of function start>,<function name> for each function
+    LinesHit(u32),                  // LH:<number of lines with an execution count> greater than 0
+    LinesFound(u32),                // LF:<number of instrumented lines>
     EndOfRecord                     // end_of_record
 }
 
