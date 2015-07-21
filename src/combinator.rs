@@ -47,6 +47,14 @@ fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
 }
 
 #[inline]
+fn lines_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let line_count = parser(integer_value::<I>)
+        .map( | lines_hit | LCOVRecord::LinesHit(lines_hit) );
+
+    between(string("LH:"), newline(), line_count).parse_state(input)
+}
+
+#[inline]
 fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
     let execution_count = token(',').with( parser(integer_value::<I>) );
