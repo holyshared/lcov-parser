@@ -5,7 +5,10 @@
 //!
 //! * TN:<test name>
 //! * SF:<absolute path to the source file>
+//! * FN:<line number of function start>,<function name> for each function
 //! * DA:<line number>,<execution count>[,<checksum>]
+//! * LH:<number of lines with an execution count> greater than 0
+//! * LF:<number of instrumented lines>
 //! * end_of_record
 
 use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
