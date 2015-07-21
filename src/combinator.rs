@@ -33,6 +33,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(functions_hit::<I>))
         .or(try(parser(lines_hit::<I>)))
         .or(parser(lines_found::<I>))
+        .or(try(parser(branch_data::<I>)))
         .or(try(parser(branches_found::<I>)))
         .or(parser(branches_hit::<I>))
         .parse_state(input)
@@ -118,7 +119,7 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
 }
 
 #[inline]
-fn branches_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
     let block_number = token(',').with( parser(integer_value::<I>) );
     let branch_number = token(',').with( parser(integer_value::<I>) );
@@ -178,7 +179,7 @@ fn string_value<I>(input: State<I>) -> ParseResult<String, I> where I: Stream<It
 mod tests {
     use super::*;
     use parser_combinators:: { parser, Parser };
-    use record:: { LCOVRecord };
+    use record:: { LCOVRecord, Token };
 
     #[test]
     fn test_name() {
@@ -238,6 +239,12 @@ mod tests {
     fn lines_found() {
         let result = parser(record).parse("LF:10\n");
         assert_eq!(result.unwrap(), (LCOVRecord::LinesFound(10), ""));
+    }
+
+    #[test]
+    fn branch_data() {
+        let result = parser(record).parse("BRDA:1,2,3,-\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(1, 2, 3, Token::NotCalled), ""));
     }
 
     #[test]
