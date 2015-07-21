@@ -8,13 +8,25 @@ use parser:: { parse_record };
 #[derive(Debug, PartialEq, Clone)]
 pub enum LCOVRecord
 {
-    TestName(String),               // TN:<test name>
-    SourceFile(String),             // SF:<absolute path to the source file>
-    Data(u32, u32, Option<String>), // DA:<line number>,<execution count>[,<checksum>]
-    FunctionName(u32, String),      // FN:<line number of function start>,<function name> for each function
-    LinesHit(u32),                  // LH:<number of lines with an execution count> greater than 0
-    LinesFound(u32),                // LF:<number of instrumented lines>
-    EndOfRecord                     // end_of_record
+    TestName(String),                 // TN:<test name>
+    SourceFile(String),               // SF:<absolute path to the source file>
+    Data(u32, u32, Option<String>),   // DA:<line number>,<execution count>[,<checksum>]
+    FunctionName(u32, String),        // FN:<line number of function start>,<function name> for each function
+    FunctionData(u32, String),        // FNDA:<execution count>,<function name>
+    FunctionsFound(u32),              // FNF:<number of functions found>
+    FunctionsHit(u32),                // FNH:<number of function hit>
+    LinesHit(u32),                    // LH:<number of lines with an execution count> greater than 0
+    LinesFound(u32),                  // LF:<number of instrumented lines>
+    BranchData(u32, u32, u32, Token), // BRDA:<line number>,<block number>,<branch number>,<taken>
+    BranchesFound(u32),               // BRF:<number of branches found>
+    BranchesHit(u32),                 // BRH:<number of branches hit>
+    EndOfRecord                       // end_of_record
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Token {
+    Called(u32),
+    NotCalled
 }
 
 /// Parse the record from [u8].
