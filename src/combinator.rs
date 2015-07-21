@@ -31,6 +31,8 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(functions_hit::<I>))
         .or(try(parser(lines_hit::<I>)))
         .or(parser(lines_found::<I>))
+        .or(try(parser(branches_found::<I>)))
+        .or(parser(branches_hit::<I>))
         .parse_state(input)
 }
 
@@ -111,6 +113,22 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
         LCOVRecord::Data(line_number, execution_count, checksum)
     });
     between(string("DA:"), newline(), record).parse_state(input)
+}
+
+#[inline]
+fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let branches_found = parser(integer_value::<I>)
+        .map( | branches_found | LCOVRecord::BranchesFound(branches_found) );
+
+    between(string("BRF:"), newline(), branches_found).parse_state(input)
+}
+
+#[inline]
+fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let branches_hit = parser(integer_value::<I>)
+        .map( | branches_hit | LCOVRecord::BranchesHit(branches_hit) );
+
+    between(string("BRH:"), newline(), branches_hit).parse_state(input)
 }
 
 #[inline]
@@ -196,6 +214,18 @@ mod tests {
     fn lines_found() {
         let result = parser(record).parse("LF:10\n");
         assert_eq!(result.unwrap(), (LCOVRecord::LinesFound(10), ""));
+    }
+
+    #[test]
+    fn branches_found() {
+        let result = parser(record).parse("BRF:10\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchesFound(10), ""));
+    }
+
+    #[test]
+    fn branches_hit() {
+        let result = parser(record).parse("BRH:10\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchesHit(10), ""));
     }
 
     #[test]
