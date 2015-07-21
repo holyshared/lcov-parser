@@ -35,6 +35,18 @@ fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
 }
 
 #[inline]
+fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let line_number = parser(integer_value::<I>);
+    let function_name = token(',').with( parser(string_value::<I>) );
+
+    let record = (line_number, function_name).map( | t | {
+        let (line_number, function_name) = t;
+        LCOVRecord::FunctionName(line_number, function_name)
+    });
+    between(string("FN:"), newline(), record).parse_state(input)
+}
+
+#[inline]
 fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
     let execution_count = token(',').with( parser(integer_value::<I>) );
