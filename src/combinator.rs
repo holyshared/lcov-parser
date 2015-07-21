@@ -248,6 +248,12 @@ mod tests {
     }
 
     #[test]
+    fn branch_data_with_branch_times() {
+        let result = parser(record).parse("BRDA:1,2,3,4\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(1, 2, 3, Token::Called(4)), ""));
+    }
+
+    #[test]
     fn branches_found() {
         let result = parser(record).parse("BRF:10\n");
         assert_eq!(result.unwrap(), (LCOVRecord::BranchesFound(10), ""));
