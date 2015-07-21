@@ -127,6 +127,12 @@ mod tests {
     }
 
     #[test]
+    fn function_name() {
+        let result = parser(record).parse("FN:5,main\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::FunctionName(5, "main".to_string()), ""));
+    }
+
+    #[test]
     fn lines_hit() {
         let result = parser(record).parse("LH:5\n");
         assert_eq!(result.unwrap(), (LCOVRecord::LinesHit(5), ""));
