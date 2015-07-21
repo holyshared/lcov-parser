@@ -12,6 +12,8 @@
 //! * DA:<line number>,<execution count>[,<checksum>]
 //! * LH:<number of lines with an execution count> greater than 0
 //! * LF:<number of instrumented lines>
+//! * BRF:<number of branches found>
+//! * BRH:<number of branches hit>
 //! * end_of_record
 
 use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
