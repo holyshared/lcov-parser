@@ -19,6 +19,9 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(test_name::<I>))
         .or(parser(source_file::<I>))
         .or(parser(data::<I>))
+        .or(parser(function_name::<I>))
+        .or(parser(lines_hit::<I>))
+        .or(parser(lines_found::<I>))
         .parse_state(input)
 }
 
