@@ -19,7 +19,7 @@
 use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
-use record:: { LCOVRecord };
+use record:: { LCOVRecord, Token };
 
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -115,6 +115,28 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
         LCOVRecord::Data(line_number, execution_count, checksum)
     });
     between(string("DA:"), newline(), record).parse_state(input)
+}
+
+#[inline]
+fn branches_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let line_number = parser(integer_value::<I>);
+    let block_number = token(',').with( parser(integer_value::<I>) );
+    let branch_number = token(',').with( parser(integer_value::<I>) );
+
+    let called = parser(integer_value::<I>)
+        .map(Token::Called);
+    let not_called = token('-')
+        .with( value(Token::NotCalled) );
+    let branch_execution_count = try(not_called)
+        .or(called);
+
+    let taken = token(',').with(branch_execution_count);
+
+    let record = (line_number, block_number, branch_number, taken).map( | t | {
+        let (line_number, block_number, branch_number, taken) = t;
+        LCOVRecord::BranchData(line_number, block_number, branch_number, taken)
+    });
+    between(string("BRDA:"), newline(), record).parse_state(input)
 }
 
 #[inline]
