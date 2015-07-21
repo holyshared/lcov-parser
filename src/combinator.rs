@@ -8,7 +8,7 @@
 //! * DA:<line number>,<execution count>[,<checksum>]
 //! * end_of_record
 
-use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, between, newline, parser, Parser, ParserExt, ParseResult };
+use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
 use record:: { LCOVRecord };
@@ -20,7 +20,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(source_file::<I>))
         .or(parser(data::<I>))
         .or(parser(function_name::<I>))
-        .or(parser(lines_hit::<I>))
+        .or(try(parser(lines_hit::<I>)))
         .or(parser(lines_found::<I>))
         .parse_state(input)
 }
@@ -124,6 +124,18 @@ mod tests {
     fn data_with_checksum() {
         let result = parser(record).parse("DA:1,2,3sdfjiji56\n");
         assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, Some("3sdfjiji56".to_string())), ""));
+    }
+
+    #[test]
+    fn lines_hit() {
+        let result = parser(record).parse("LH:5\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::LinesHit(5), ""));
+    }
+
+    #[test]
+    fn lines_found() {
+        let result = parser(record).parse("LF:10\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::LinesFound(10), ""));
     }
 
     #[test]
