@@ -23,7 +23,9 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(source_file::<I>))
         .or(parser(data::<I>))
         .or(try(parser(function_name::<I>)))
-        .or(parser(function_data::<I>))
+        .or(try(parser(function_data::<I>)))
+        .or(try(parser(functions_found::<I>)))
+        .or(parser(functions_hit::<I>))
         .or(try(parser(lines_hit::<I>)))
         .or(parser(lines_found::<I>))
         .parse_state(input)
@@ -64,6 +66,20 @@ fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
         LCOVRecord::FunctionData(execution_count, function_name)
     });
     between(string("FNDA:"), newline(), record).parse_state(input)
+}
+
+#[inline]
+fn functions_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let functions_found = parser(integer_value::<I>)
+        .map( | functions_found | LCOVRecord::FunctionsFound(functions_found) );
+    between(string("FNF:"), newline(), functions_found).parse_state(input)
+}
+
+#[inline]
+fn functions_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    let functions_hit = parser(integer_value::<I>)
+        .map( | functions_hit | LCOVRecord::FunctionsHit(functions_hit) );
+    between(string("FNH:"), newline(), functions_hit).parse_state(input)
 }
 
 #[inline]
@@ -153,6 +169,18 @@ mod tests {
     fn function_data() {
         let result = parser(record).parse("FNDA:5,main\n");
         assert_eq!(result.unwrap(), (LCOVRecord::FunctionData(5, "main".to_string()), ""));
+    }
+
+    #[test]
+    fn functions_found() {
+        let result = parser(record).parse("FNF:10\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::FunctionsFound(10), ""));
+    }
+
+    #[test]
+    fn functions_hit() {
+        let result = parser(record).parse("FNH:10\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::FunctionsHit(10), ""));
     }
 
     #[test]
