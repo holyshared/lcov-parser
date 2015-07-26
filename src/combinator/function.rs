@@ -3,6 +3,7 @@ use parser_combinators::primitives:: { State, Stream };
 use record:: { LCOVRecord };
 use combinator::value:: { to_integer, to_string };
 
+#[inline]
 pub fn function_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     try(parser(function_name::<I>))
         .or(try(parser(function_data::<I>)))
@@ -11,6 +12,7 @@ pub fn function_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I
         .parse_state(input)
 }
 
+#[inline]
 fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(to_integer::<I>);
     let function_name = token(',').with( parser(to_string::<I>) );
@@ -22,7 +24,7 @@ fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
     between(string("FN:"), newline(), record).parse_state(input)
 }
 
-
+#[inline]
 fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let execution_count = parser(to_integer::<I>);
     let function_name = token(',')
@@ -35,14 +37,14 @@ fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
     between(string("FNDA:"), newline(), record).parse_state(input)
 }
 
-
+#[inline]
 fn functions_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let functions_found = parser(to_integer::<I>)
         .map( | functions_found | LCOVRecord::FunctionsFound(functions_found) );
     between(string("FNF:"), newline(), functions_found).parse_state(input)
 }
 
-
+#[inline]
 fn functions_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let functions_hit = parser(to_integer::<I>)
         .map( | functions_hit | LCOVRecord::FunctionsHit(functions_hit) );
