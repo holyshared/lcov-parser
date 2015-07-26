@@ -1,6 +1,6 @@
 use parser_combinators:: { string, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
-use record:: { LCOVRecord, Token };
+use record:: { LCOVRecord };
 use combinator::value:: { to_integer };
 
 pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -15,12 +15,10 @@ fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
     let block_number = token(',').with( parser(to_integer::<I>) );
     let branch_number = token(',').with( parser(to_integer::<I>) );
 
-    let called = parser(to_integer::<I>)
-        .map(Token::Called);
-    let not_called = token('-')
-        .with( value(Token::NotCalled) );
-    let branch_execution_count = try(not_called)
-        .or(called);
+    let called = parser(to_integer::<I>);
+    let not_called = token('-').with( value(0) );
+
+    let branch_execution_count = try(not_called).or(called);
 
     let taken = token(',').with(branch_execution_count);
 
