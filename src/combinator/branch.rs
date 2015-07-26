@@ -1,7 +1,7 @@
 use parser_combinators:: { string, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use record:: { LCOVRecord, Token };
-use combinator::value:: { integer_value };
+use combinator::value:: { to_integer };
 
 pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     try(parser(branch_data::<I>))
@@ -11,11 +11,11 @@ pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: 
 }
 
 fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let line_number = parser(integer_value::<I>);
-    let block_number = token(',').with( parser(integer_value::<I>) );
-    let branch_number = token(',').with( parser(integer_value::<I>) );
+    let line_number = parser(to_integer::<I>);
+    let block_number = token(',').with( parser(to_integer::<I>) );
+    let branch_number = token(',').with( parser(to_integer::<I>) );
 
-    let called = parser(integer_value::<I>)
+    let called = parser(to_integer::<I>)
         .map(Token::Called);
     let not_called = token('-')
         .with( value(Token::NotCalled) );
@@ -32,14 +32,14 @@ fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
 }
 
 fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let branches_found = parser(integer_value::<I>)
+    let branches_found = parser(to_integer::<I>)
         .map( | branches_found | LCOVRecord::BranchesFound(branches_found) );
 
     between(string("BRF:"), newline(), branches_found).parse_state(input)
 }
 
 fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let branches_hit = parser(integer_value::<I>)
+    let branches_hit = parser(to_integer::<I>)
         .map( | branches_hit | LCOVRecord::BranchesHit(branches_hit) );
 
     between(string("BRH:"), newline(), branches_hit).parse_state(input)

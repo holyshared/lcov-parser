@@ -2,7 +2,7 @@ use parser_combinators:: { string, optional, token, value, between, newline, par
 use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
 use record:: { LCOVRecord  };
-use combinator::value:: { integer_value, string_value };
+use combinator::value:: { to_integer, to_string };
 
 #[inline]
 pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -15,21 +15,21 @@ pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I:
 
 #[inline]
 fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let test_name = parser(string_value::<I>).map( | s: String | LCOVRecord::TestName(s) );
+    let test_name = parser(to_string::<I>).map( | s: String | LCOVRecord::TestName(s) );
     between(string("TN:"), newline(), test_name).parse_state(input)
 }
 
 #[inline]
 fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let source_file =  parser(string_value::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
+    let source_file =  parser(to_string::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
     between(string("SF:"), newline(), source_file).parse_state(input)
 }
 
 #[inline]
 fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let line_number = parser(integer_value::<I>);
-    let execution_count = token(',').with( parser(integer_value::<I>) );
-    let checksum = optional( token(',').with( parser(string_value::<I>) ) );
+    let line_number = parser(to_integer::<I>);
+    let execution_count = token(',').with( parser(to_integer::<I>) );
+    let checksum = optional( token(',').with( parser(to_string::<I>) ) );
     let record = (line_number, execution_count, checksum).map( | t | {
         let (line_number, execution_count, checksum) = t;
         LCOVRecord::Data(line_number, execution_count, checksum)

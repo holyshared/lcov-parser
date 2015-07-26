@@ -1,7 +1,7 @@
 use parser_combinators:: { string, try, token, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use record:: { LCOVRecord };
-use combinator::value:: { integer_value, string_value };
+use combinator::value:: { to_integer, to_string };
 
 pub fn function_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     try(parser(function_name::<I>))
@@ -12,8 +12,8 @@ pub fn function_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I
 }
 
 fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let line_number = parser(integer_value::<I>);
-    let function_name = token(',').with( parser(string_value::<I>) );
+    let line_number = parser(to_integer::<I>);
+    let function_name = token(',').with( parser(to_string::<I>) );
 
     let record = (line_number, function_name).map( | t | {
         let (line_number, function_name) = t;
@@ -24,9 +24,9 @@ fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
 
 
 fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let execution_count = parser(integer_value::<I>);
+    let execution_count = parser(to_integer::<I>);
     let function_name = token(',')
-        .with( parser(string_value::<I>) );
+        .with( parser(to_string::<I>) );
 
     let record = (execution_count, function_name).map( | t | {
         let (execution_count, function_name) = t;
@@ -37,14 +37,14 @@ fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
 
 
 fn functions_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let functions_found = parser(integer_value::<I>)
+    let functions_found = parser(to_integer::<I>)
         .map( | functions_found | LCOVRecord::FunctionsFound(functions_found) );
     between(string("FNF:"), newline(), functions_found).parse_state(input)
 }
 
 
 fn functions_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let functions_hit = parser(integer_value::<I>)
+    let functions_hit = parser(to_integer::<I>)
         .map( | functions_hit | LCOVRecord::FunctionsHit(functions_hit) );
     between(string("FNH:"), newline(), functions_hit).parse_state(input)
 }
