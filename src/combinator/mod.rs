@@ -31,7 +31,6 @@ use combinator::branch:: { branch_record };
 use combinator::function:: { function_record };
 use combinator::line:: { lines_record };
 
-
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     parser(general_record::<I>)
@@ -40,36 +39,6 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(branch_record::<I>))
         .parse_state(input)
 }
-/*
-#[inline]
-fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let test_name = parser(string_value::<I>).map( | s: String | LCOVRecord::TestName(s) );
-    between(string("TN:"), newline(), test_name).parse_state(input)
-}
-
-#[inline]
-fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let source_file =  parser(string_value::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
-    between(string("SF:"), newline(), source_file).parse_state(input)
-}
-
-#[inline]
-fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let line_number = parser(integer_value::<I>);
-    let execution_count = token(',').with( parser(integer_value::<I>) );
-    let checksum = optional( token(',').with( parser(string_value::<I>) ) );
-    let record = (line_number, execution_count, checksum).map( | t | {
-        let (line_number, execution_count, checksum) = t;
-        LCOVRecord::Data(line_number, execution_count, checksum)
-    });
-    between(string("DA:"), newline(), record).parse_state(input)
-}
-
-#[inline]
-fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_state(input)
-}
-*/
 
 #[cfg(test)]
 mod tests {
