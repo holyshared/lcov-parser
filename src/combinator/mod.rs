@@ -16,10 +16,10 @@
 //! * BRH:<number of branches hit>
 //! * end_of_record
 
-use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
+use parser_combinators:: { string, optional, token, value, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
-use record:: { LCOVRecord, Token };
+use record:: { LCOVRecord  };
 
 mod value;
 mod branch;

@@ -1,6 +1,6 @@
-use parser_combinators:: { many1, digit, string, satisfy, optional, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
+use parser_combinators:: { string, try, token, between, newline, parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
-use record:: { LCOVRecord, Token };
+use record:: { LCOVRecord };
 use combinator::value:: { integer_value, string_value };
 
 pub fn function<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
