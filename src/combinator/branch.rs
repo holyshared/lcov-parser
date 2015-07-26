@@ -3,6 +3,13 @@ use parser_combinators::primitives:: { State, Stream };
 use record:: { LCOVRecord, Token };
 use combinator::value:: { integer_value, string_value };
 
+pub fn branch<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+    try(parser(branch_data::<I>))
+        .or(try(parser(branches_found::<I>)))
+        .or(parser(branches_hit::<I>))
+        .parse_state(input)
+}
+
 pub fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
     let block_number = token(',').with( parser(integer_value::<I>) );

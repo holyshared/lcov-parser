@@ -25,7 +25,7 @@ mod value;
 mod branch;
 
 use combinator::value:: { integer_value, string_value };
-use combinator::branch:: { branch_data, branches_found, branches_hit };
+use combinator::branch:: { branch };
 
 
 #[inline]
@@ -40,9 +40,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(functions_hit::<I>))
         .or(try(parser(lines_hit::<I>)))
         .or(parser(lines_found::<I>))
-        .or(try(parser(branch_data::<I>)))
-        .or(try(parser(branches_found::<I>)))
-        .or(parser(branches_hit::<I>))
+        .or(parser(branch::<I>))
         .parse_state(input)
 }
 
