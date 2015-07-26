@@ -27,8 +27,8 @@ mod function;
 mod line;
 
 use combinator::value:: { integer_value, string_value };
-use combinator::branch:: { branch };
-use combinator::function:: { function };
+use combinator::branch:: { branch_record };
+use combinator::function:: { function_record };
 use combinator::line:: { lines_record };
 
 #[inline]
@@ -37,9 +37,9 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(test_name::<I>))
         .or(parser(source_file::<I>))
         .or(parser(data::<I>))
-        .or(parser(function::<I>))
+        .or(parser(function_record::<I>))
         .or(parser(lines_record::<I>))
-        .or(parser(branch::<I>))
+        .or(parser(branch_record::<I>))
         .parse_state(input)
 }
 
@@ -54,47 +54,6 @@ fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
     let source_file =  parser(string_value::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
     between(string("SF:"), newline(), source_file).parse_state(input)
 }
-/*
-#[inline]
-fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let line_number = parser(integer_value::<I>);
-    let function_name = token(',').with( parser(string_value::<I>) );
-
-    let record = (line_number, function_name).map( | t | {
-        let (line_number, function_name) = t;
-        LCOVRecord::FunctionName(line_number, function_name)
-    });
-    between(string("FN:"), newline(), record).parse_state(input)
-}
-
-#[inline]
-fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let execution_count = parser(integer_value::<I>);
-    let function_name = token(',')
-        .with( parser(string_value::<I>) );
-
-    let record = (execution_count, function_name).map( | t | {
-        let (execution_count, function_name) = t;
-        LCOVRecord::FunctionData(execution_count, function_name)
-    });
-    between(string("FNDA:"), newline(), record).parse_state(input)
-}
-
-#[inline]
-fn functions_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let functions_found = parser(integer_value::<I>)
-        .map( | functions_found | LCOVRecord::FunctionsFound(functions_found) );
-    between(string("FNF:"), newline(), functions_found).parse_state(input)
-}
-
-#[inline]
-fn functions_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let functions_hit = parser(integer_value::<I>)
-        .map( | functions_hit | LCOVRecord::FunctionsHit(functions_hit) );
-    between(string("FNH:"), newline(), functions_hit).parse_state(input)
-}
-*/
-
 
 #[inline]
 fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -107,66 +66,11 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
     });
     between(string("DA:"), newline(), record).parse_state(input)
 }
-/*
-#[inline]
-fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let line_number = parser(integer_value::<I>);
-    let block_number = token(',').with( parser(integer_value::<I>) );
-    let branch_number = token(',').with( parser(integer_value::<I>) );
-
-    let called = parser(integer_value::<I>)
-        .map(Token::Called);
-    let not_called = token('-')
-        .with( value(Token::NotCalled) );
-    let branch_execution_count = try(not_called)
-        .or(called);
-
-    let taken = token(',').with(branch_execution_count);
-
-    let record = (line_number, block_number, branch_number, taken).map( | t | {
-        let (line_number, block_number, branch_number, taken) = t;
-        LCOVRecord::BranchData(line_number, block_number, branch_number, taken)
-    });
-    between(string("BRDA:"), newline(), record).parse_state(input)
-}
-
-#[inline]
-fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let branches_found = parser(integer_value::<I>)
-        .map( | branches_found | LCOVRecord::BranchesFound(branches_found) );
-
-    between(string("BRF:"), newline(), branches_found).parse_state(input)
-}
-
-#[inline]
-fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let branches_hit = parser(integer_value::<I>)
-        .map( | branches_hit | LCOVRecord::BranchesHit(branches_hit) );
-
-    between(string("BRH:"), newline(), branches_hit).parse_state(input)
-}
-*/
 
 #[inline]
 fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_state(input)
 }
-
-/*
-#[inline]
-fn integer_value<I>(input: State<I>) -> ParseResult<u32, I> where I: Stream<Item=char> {
-    many1( digit() )
-        .map( |s: String| s.parse::<u32>().unwrap() )
-        .parse_state(input)
-}
-
-#[inline]
-fn string_value<I>(input: State<I>) -> ParseResult<String, I> where I: Stream<Item=char> {
-    many1( satisfy( | c: char | c != '\n' ) )
-        .map( | s: String | s )
-        .parse_state(input)
-}
-*/
 
 #[cfg(test)]
 mod tests {

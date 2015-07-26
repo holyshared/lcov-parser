@@ -3,7 +3,7 @@ use parser_combinators::primitives:: { State, Stream };
 use record:: { LCOVRecord };
 use combinator::value:: { integer_value, string_value };
 
-pub fn function<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+pub fn function_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     try(parser(function_name::<I>))
         .or(try(parser(function_data::<I>)))
         .or(try(parser(functions_found::<I>)))
