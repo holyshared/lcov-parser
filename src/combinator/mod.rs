@@ -23,9 +23,11 @@ use record:: { LCOVRecord, Token };
 
 mod value;
 mod branch;
+mod function;
 
 use combinator::value:: { integer_value, string_value };
 use combinator::branch:: { branch };
+use combinator::function:: { function };
 
 
 #[inline]
@@ -34,10 +36,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(test_name::<I>))
         .or(parser(source_file::<I>))
         .or(parser(data::<I>))
-        .or(try(parser(function_name::<I>)))
-        .or(try(parser(function_data::<I>)))
-        .or(try(parser(functions_found::<I>)))
-        .or(parser(functions_hit::<I>))
+        .or(parser(function::<I>))
         .or(try(parser(lines_hit::<I>)))
         .or(parser(lines_found::<I>))
         .or(parser(branch::<I>))
@@ -55,7 +54,7 @@ fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
     let source_file =  parser(string_value::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
     between(string("SF:"), newline(), source_file).parse_state(input)
 }
-
+/*
 #[inline]
 fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
@@ -94,6 +93,7 @@ fn functions_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
         .map( | functions_hit | LCOVRecord::FunctionsHit(functions_hit) );
     between(string("FNH:"), newline(), functions_hit).parse_state(input)
 }
+*/
 
 #[inline]
 fn lines_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
