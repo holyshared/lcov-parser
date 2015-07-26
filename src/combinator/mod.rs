@@ -16,33 +16,31 @@
 //! * BRH:<number of branches hit>
 //! * end_of_record
 
-use parser_combinators:: { string, optional, token, value, between, newline, parser, Parser, ParserExt, ParseResult };
+use parser_combinators:: { parser, Parser, ParserExt, ParseResult };
 use parser_combinators::primitives:: { State, Stream };
-use std::string:: { String };
 use record:: { LCOVRecord  };
 
 mod value;
+mod general;
 mod branch;
 mod function;
 mod line;
 
-use combinator::value:: { integer_value, string_value };
+use combinator::general:: { general_record };
 use combinator::branch:: { branch_record };
 use combinator::function:: { function_record };
 use combinator::line:: { lines_record };
 
+
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    parser(end_of_record::<I>)
-        .or(parser(test_name::<I>))
-        .or(parser(source_file::<I>))
-        .or(parser(data::<I>))
+    parser(general_record::<I>)
         .or(parser(function_record::<I>))
         .or(parser(lines_record::<I>))
         .or(parser(branch_record::<I>))
         .parse_state(input)
 }
-
+/*
 #[inline]
 fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let test_name = parser(string_value::<I>).map( | s: String | LCOVRecord::TestName(s) );
@@ -71,6 +69,7 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
 fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_state(input)
 }
+*/
 
 #[cfg(test)]
 mod tests {
