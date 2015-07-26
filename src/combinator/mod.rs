@@ -21,6 +21,10 @@ use parser_combinators::primitives:: { State, Stream };
 use std::string:: { String };
 use record:: { LCOVRecord, Token };
 
+mod value;
+
+use combinator::value:: { integer_value, string_value };
+
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     parser(end_of_record::<I>)
@@ -161,6 +165,7 @@ fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
     between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_state(input)
 }
 
+/*
 #[inline]
 fn integer_value<I>(input: State<I>) -> ParseResult<u32, I> where I: Stream<Item=char> {
     many1( digit() )
@@ -174,6 +179,7 @@ fn string_value<I>(input: State<I>) -> ParseResult<String, I> where I: Stream<It
         .map( | s: String | s )
         .parse_state(input)
 }
+*/
 
 #[cfg(test)]
 mod tests {
