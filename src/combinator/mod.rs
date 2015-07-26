@@ -22,8 +22,11 @@ use std::string:: { String };
 use record:: { LCOVRecord, Token };
 
 mod value;
+mod branch;
 
 use combinator::value:: { integer_value, string_value };
+use combinator::branch:: { branch_data, branches_found, branches_hit };
+
 
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
@@ -121,7 +124,7 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
     });
     between(string("DA:"), newline(), record).parse_state(input)
 }
-
+/*
 #[inline]
 fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let line_number = parser(integer_value::<I>);
@@ -159,6 +162,7 @@ fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Strea
 
     between(string("BRH:"), newline(), branches_hit).parse_state(input)
 }
+*/
 
 #[inline]
 fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
