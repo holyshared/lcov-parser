@@ -4,6 +4,8 @@ lcov-parser
 LCOV report parser for Rust.
 
 [![Build Status](https://travis-ci.org/holyshared/lcov-parser.svg)](https://travis-ci.org/holyshared/lcov-parser)
+[![crates.io version](https://img.shields.io/crates/v/lcov-parser.svg)](https://crates.io/crates/lcov-parser)
+
 
 Basic usage
 --------------------------------
