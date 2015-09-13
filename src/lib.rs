@@ -2,7 +2,7 @@
 
 #[macro_use]
 extern crate lines;
-extern crate parser_combinators;
+extern crate combine;
 
 pub use self::record::*;
 pub use self::parser::*;
