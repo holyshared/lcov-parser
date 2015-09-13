@@ -9,5 +9,5 @@ repository = "https://github.com/holyshared/lcov-parser"
 readme = "README.md"
 
 [dependencies]
-parser-combinators = "0.7.0"
+combine = "1.0.0"
 lines = "0.0.3"
