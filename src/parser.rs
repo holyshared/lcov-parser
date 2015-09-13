@@ -1,6 +1,6 @@
 //! Parser of LCOV report.
 
-use parser_combinators:: { parser, Parser };
+use combine:: { parser, Parser };
 use lines::linereader:: { LineReader };
 use record:: { LCOVRecord };
 use combinator:: { record };

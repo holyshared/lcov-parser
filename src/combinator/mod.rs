@@ -16,8 +16,8 @@
 //! * BRH:<number of branches hit>
 //! * end_of_record
 
-use parser_combinators:: { parser, Parser, ParserExt, ParseResult };
-use parser_combinators::primitives:: { State, Stream };
+use combine:: { parser, Parser, ParserExt, ParseResult };
+use combine::primitives:: { State, Stream };
 use record:: { LCOVRecord  };
 
 mod value;
@@ -43,7 +43,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use parser_combinators:: { parser, Parser };
+    use combine:: { parser, Parser };
     use record:: { LCOVRecord };
 
     #[test]

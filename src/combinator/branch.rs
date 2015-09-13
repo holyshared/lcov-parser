@@ -1,5 +1,5 @@
-use parser_combinators:: { string, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
-use parser_combinators::primitives:: { State, Stream };
+use combine:: { string, token, value, try, between, newline, parser, Parser, ParserExt, ParseResult };
+use combine::primitives:: { State, Stream };
 use record:: { LCOVRecord };
 use combinator::value:: { to_integer };
 

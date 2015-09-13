@@ -1,5 +1,5 @@
-use parser_combinators:: { many1, digit, satisfy, Parser, ParserExt, ParseResult };
-use parser_combinators::primitives:: { State, Stream };
+use combine:: { many1, digit, satisfy, Parser, ParserExt, ParseResult };
+use combine::primitives:: { State, Stream };
 
 pub fn to_integer<I>(input: State<I>) -> ParseResult<u32, I> where I: Stream<Item=char> {
     many1( digit() )
