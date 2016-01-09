@@ -1,5 +1,4 @@
-lcov-parser
-================================
+# lcov-parser
 
 LCOV report parser for Rust.
 
@@ -8,8 +7,7 @@ LCOV report parser for Rust.
 [![crates.io version](https://img.shields.io/crates/v/lcov-parser.svg)](https://crates.io/crates/lcov-parser)
 [![License](https://img.shields.io/crates/l/lcov-parser.svg)](https://github.com/holyshared/lcov-parser/blob/master/LICENSE)
 
-Basic usage
---------------------------------
+## Basic usage
 
 If you simply want to parse, use the **each_records**.  
 You can run the parsing process on a record-by-record basis in **each_records**.
@@ -40,8 +38,7 @@ fn main() {
 }
 ```
 
-LCOVParser
---------------------------------
+## LCOVParser
 
 When you use the **LCOVParser**, it will be able to control the processing of parse.
 
@@ -76,3 +73,10 @@ match File::open(file) {
 	Err(error) => panic!("{:?}", error)
 }
 ```
+
+## License
+
+Licensed under either of
+ * Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+at your option.
