@@ -1,13 +1,13 @@
 [package]
 name = "lcov-parser"
-version = "0.7.0"
+version = "0.8.0"
 keywords = [ "parser", "LCOV", "report", "code-coverage" ]
 description = "LCOV report parser for Rust"
-authors = ["holyshared <holy.shared.design@gmail.com>"]
+authors = [ "holyshared <holy.shared.design@gmail.com>" ]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/holyshared/lcov-parser"
 readme = "README.md"
 
 [dependencies]
-combine = "1.2.0"
-lines = "0.0.3"
+combine = "1.2.1"
+lines = "0.0.4"
