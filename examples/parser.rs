@@ -1,16 +1,12 @@
 extern crate lcov_parser;
 
-use lcov_parser:: { LCOVParser, ParsedResult };
+use lcov_parser:: { LCOVParser };
 
 fn main() {
-    let records = "TN:testname\nSF:/path/to/source.rs\n".as_bytes();
-    let mut parser = LCOVParser::new(records);
+    let input = "TN:testname\nSF:/path/to/source.rs\n";
+    let records = LCOVParser::new(input).parse().unwrap();
 
-    loop {
-        match parser.parse_next() {
-            ParsedResult::Ok(record, _) => println!("{:?}", record),
-            ParsedResult::Eof => { break; },
-            ParsedResult::Err(error) => println!("{:?}", error)
-        }
+    for record in records.iter() {
+        println!("{:?}", record);
     }
 }

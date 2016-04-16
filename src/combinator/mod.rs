@@ -24,7 +24,7 @@
 //! * BRH:<number of branches hit>
 //! * end_of_record
 
-use combine:: { parser, Parser, ParserExt, ParseResult };
+use combine:: { parser, many, Parser, ParserExt, ParseResult };
 use combine::primitives:: { State, Stream };
 use record:: { LCOVRecord  };
 
@@ -38,6 +38,12 @@ use combinator::general:: { general_record };
 use combinator::branch:: { branch_record };
 use combinator::function:: { function_record };
 use combinator::line:: { lines_record };
+
+#[inline]
+pub fn report<I>(input: State<I>) -> ParseResult<Vec<LCOVRecord>, I> where I: Stream<Item=char> {
+    let record_parser = parser(record::<I>);
+    many(record_parser).parse_state(input)
+}
 
 #[inline]
 pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
