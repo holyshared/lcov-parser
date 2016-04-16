@@ -11,7 +11,6 @@
 use combine:: { parser, Parser };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
-use std::str:: { from_utf8, Utf8Error };
 use std::io:: { ErrorKind };
 use std::result:: { Result };
 use std::ops:: { Fn };
@@ -26,8 +25,7 @@ pub enum ParsedResult {
 #[derive(PartialEq, Debug)]
 pub enum RecordParsedError {
     Read(ErrorKind),
-    Record(String, i32),
-    UTF8(Utf8Error)
+    Record(String, i32)
 }
 
 ///
@@ -66,25 +64,20 @@ impl ReportParser {
 /// ```
 /// use lcov_parser:: { LCOVRecord, parse_record };
 ///
-/// let result = parse_record(b"TN:test_name\n");
+/// let result = parse_record("TN:test_name\n");
 ///
 /// assert_eq!(result.unwrap(), LCOVRecord::TestName("test_name".to_string()));
 /// ```
 
 #[inline]
-pub fn parse_record(input: &[u8]) -> Result<LCOVRecord, RecordParsedError> {
-    match from_utf8(input) {
-        Ok(value) => {
-            match parser(record).parse(value) {
-                Ok((record, _)) => Ok(record),
-                Err(error) => {
-                    let column = error.position.column;
-                    let source = value.to_string();
-                    Err( RecordParsedError::Record(source, column) )
-                }
-            }
-        },
-        Err(error) => Err( RecordParsedError::UTF8(error) )
+pub fn parse_record(input: &str) -> Result<LCOVRecord, RecordParsedError> {
+    match parser(record).parse(input) {
+        Ok((record, _)) => Ok(record),
+        Err(error) => {
+            let column = error.position.column;
+            let source = input.to_string();
+            Err( RecordParsedError::Record(source, column) )
+        }
     }
 }
 
