@@ -73,6 +73,36 @@ impl<R: Read> LCOVParser<R> {
     }
 }
 
+
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser:: { ReportParser, LCOVRecord, ParsedResult };
+///
+/// let res = ReportParser::new("TN:testname\nSF:/path/to/source.rs\n").parse().unwrap();
+///
+/// assert_eq!(res[0], LCOVRecord::TestName("testname".to_string()));
+/// assert_eq!(res[1], LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
+/// ```
+
+pub struct ReportParser {
+    report: String
+}
+
+impl ReportParser {
+    pub fn new(report: &str) -> Self {
+        ReportParser { report: report.to_string() }
+    }
+    pub fn parse(&self) -> Result<Vec<LCOVRecord>, RecordParsedError> {
+        let bytes = self.report.as_bytes();
+        match parse_report(bytes) {
+            Ok(records) =>  Ok(records),
+            Err(error) => Err(error)
+        }
+    }
+}
+
 /// parse the record
 ///
 /// # Examples
