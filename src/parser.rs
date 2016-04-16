@@ -18,12 +18,7 @@ use std::path:: { Path };
 use std::ops:: { Fn };
 use std::convert:: { From };
 
-#[derive(PartialEq, Debug)]
-pub enum ParsedResult {
-    Ok(LCOVRecord, u32),
-    Eof,
-    Err(RecordParsedError)
-}
+pub type ParseResult<T> = Result<T, RecordParsedError>;
 
 #[derive(PartialEq, Debug)]
 pub enum RecordParsedError {
@@ -35,7 +30,7 @@ pub enum RecordParsedError {
 /// # Examples
 ///
 /// ```
-/// use lcov_parser:: { ReportParser, LCOVRecord, ParsedResult };
+/// use lcov_parser:: { ReportParser, LCOVRecord };
 ///
 /// let res = ReportParser::new("TN:testname\nSF:/path/to/source.rs\n").parse().unwrap();
 ///
@@ -51,7 +46,7 @@ impl ReportParser {
     pub fn new(report: &str) -> Self {
         ReportParser { report: report.to_string() }
     }
-    pub fn parse(&self) -> Result<Vec<LCOVRecord>, RecordParsedError> {
+    pub fn parse(&self) -> ParseResult<Vec<LCOVRecord>> {
         let value = self.report.as_str();
         match parse_report(value) {
             Ok(records) =>  Ok(records),
@@ -82,7 +77,7 @@ impl<P: AsRef<Path>> From<P> for ReportParser {
 /// ```
 
 #[inline]
-pub fn parse_record(input: &str) -> Result<LCOVRecord, RecordParsedError> {
+pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
     match parser(record).parse(input) {
         Ok((record, _)) => Ok(record),
         Err(error) => {
@@ -94,7 +89,7 @@ pub fn parse_record(input: &str) -> Result<LCOVRecord, RecordParsedError> {
 }
 
 #[inline]
-pub fn parse_report(input: &str) -> Result<Vec<LCOVRecord>, RecordParsedError> {
+pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {
     match parser(report).parse(input) {
         Ok((records, _)) => Ok(records),
         Err(error) => {

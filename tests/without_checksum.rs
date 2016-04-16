@@ -3,7 +3,7 @@ extern crate lcov_parser;
 use std::fs:: { File };
 use std::io:: { Result, Read };
 use std::env:: { current_dir };
-use lcov_parser:: { ReportParser, LCOVRecord, ParsedResult };
+use lcov_parser:: { ReportParser, LCOVRecord };
 
 #[derive(Clone)]
 pub struct LineResult {
