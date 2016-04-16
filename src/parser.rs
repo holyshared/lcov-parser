@@ -11,8 +11,10 @@
 use combine:: { parser, Parser };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
-use std::io:: { ErrorKind };
+use std::io:: { Read, ErrorKind };
+use std::fs:: { File };
 use std::result:: { Result };
+use std::path:: { Path };
 use std::ops:: { Fn };
 use std::convert:: { From };
 
@@ -58,9 +60,12 @@ impl ReportParser {
     }
 }
 
-impl<'a, T: AsRef<&'a str>> From<T> for ReportParser {
-    fn from(input: T) -> Self {
-        ReportParser::new(input.as_ref())
+impl<P: AsRef<Path>> From<P> for ReportParser {
+    fn from(path: P) -> Self {
+        let mut file = File::open(path).unwrap();
+        let mut buffer = String::new();
+        let _ = file.read_to_string(&mut buffer);
+        ReportParser::new(buffer.as_str())
     }
 }
 
