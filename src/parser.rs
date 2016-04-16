@@ -16,7 +16,6 @@ use std::io:: { Read };
 use std::fs:: { File };
 use std::result:: { Result };
 use std::path:: { Path };
-use std::ops:: { Fn };
 use std::convert:: { From };
 
 pub type ParseResult<T> = Result<T, RecordParseError>;
@@ -93,28 +92,4 @@ pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
 pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {
     let (records, _) = try!(parser(report).parse(input));
     Ok(records)
-}
-
-/// processes the records in order
-///
-/// # Examples
-///
-/// ```
-/// use lcov_parser:: { each_records };
-///
-/// each_records("TN:test_name\n", |r| println!("{:?}", r))
-/// ```
-
-#[inline]
-pub fn each_records<F>(input: &str, callback: F)
-    where F : Fn(LCOVRecord) {
-
-    match parse_report(input) {
-        Ok(records) => {
-            for record in records {
-                callback(record);
-            }
-        },
-        Err(error) => panic!("{:?}", error)
-    }
 }
