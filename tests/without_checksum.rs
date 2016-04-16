@@ -1,9 +1,9 @@
 extern crate lcov_parser;
 
 use std::fs:: { File };
-use std::io:: { Result };
+use std::io:: { Result, Read };
 use std::env:: { current_dir };
-use lcov_parser:: { LCOVParser, LCOVRecord, ParsedResult };
+use lcov_parser:: { ReportParser, LCOVRecord, ParsedResult };
 
 #[derive(Clone)]
 pub struct LineResult {
@@ -31,41 +31,38 @@ fn open_fixture(path: &str) -> Result<File> {
 
 #[test]
 fn without_checksum() {
-    let report = open_fixture("fixture/report.lcov").unwrap();
-    let mut parser = LCOVParser::new(report);
+    let mut buffer = String::new();
+    let mut report = open_fixture("fixture/report.lcov").unwrap();
+
+    let _ = report.read_to_string(&mut buffer);
+    let records = ReportParser::new(buffer.as_str()).parse().unwrap();
 
     let mut result = CoverageResult { files: vec!() };
     let mut file_result = FileResult { name: "".to_string(), lines: LineResult { executed: 0, unused: 0 } };
     let mut line_result = LineResult { executed: 0, unused: 0 };
 
-    loop {
-        match parser.parse_next() {
-            ParsedResult::Ok(record, _) => {
-                match record {
-                    LCOVRecord::SourceFile(name) => {
-                        line_result = LineResult { executed: 0, unused: 0 };
-                        file_result = FileResult { name: name, lines: LineResult { executed: 0, unused: 0 } };
-                    },
-                    LCOVRecord::Data(_, executed_count, _) => {
-                        if executed_count >= 1 {
-                            line_result.executed = line_result.executed + 1;
-                        } else {
-                            line_result.unused = line_result.unused + 1;
-                        }
-                    },
-                    LCOVRecord::EndOfRecord => {
-                        file_result.lines = line_result.clone();
-                        result.files.push( file_result.clone() );
-                    }
-                    _ => { continue; }
+    for record in records.iter() {
+        match record {
+            &LCOVRecord::SourceFile(ref name) => {
+                line_result = LineResult { executed: 0, unused: 0 };
+                file_result = FileResult { name: name.clone(), lines: LineResult { executed: 0, unused: 0 } };
+            },
+            &LCOVRecord::Data(_, executed_count, _) => {
+                if executed_count >= 1 {
+                    line_result.executed = line_result.executed + 1;
+                } else {
+                    line_result.unused = line_result.unused + 1;
                 }
             },
-            ParsedResult::Eof => { break; },
-            ParsedResult::Err(error) => println!("{:?}", error)
+            &LCOVRecord::EndOfRecord => {
+                file_result.lines = line_result.clone();
+                result.files.push( file_result.clone() );
+            },
+            _ => { continue; }
         }
     }
 
-    assert_eq!(parser.current_record_count(), 13);
+    assert_eq!(records.len(), 13);
     assert_eq!(result.files.len(), 2);
 
     let f1 = result.files.get(0).unwrap();
