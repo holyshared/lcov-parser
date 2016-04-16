@@ -8,22 +8,23 @@
 
 //! Parser of LCOV report.
 
-use combine:: { parser, Parser };
+use combine:: { parser, Parser, ParseError };
+use combine::primitives:: { Stream };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
-use std::io:: { Read, ErrorKind };
+use std::io:: { Read };
 use std::fs:: { File };
 use std::result:: { Result };
 use std::path:: { Path };
 use std::ops:: { Fn };
 use std::convert:: { From };
 
-pub type ParseResult<T> = Result<T, RecordParsedError>;
+pub type ParseResult<T> = Result<T, RecordParseError>;
 
 #[derive(PartialEq, Debug)]
-pub enum RecordParsedError {
-    Read(ErrorKind),
-    Record(String, i32)
+pub struct RecordParseError {
+    pub line: i32,
+    pub column: i32
 }
 
 ///
@@ -48,10 +49,8 @@ impl ReportParser {
     }
     pub fn parse(&self) -> ParseResult<Vec<LCOVRecord>> {
         let value = self.report.as_str();
-        match parse_report(value) {
-            Ok(records) =>  Ok(records),
-            Err(error) => Err(error)
-        }
+        let records = try!(parse_report(value));
+        Ok(records)
     }
 }
 
@@ -61,6 +60,14 @@ impl<P: AsRef<Path>> From<P> for ReportParser {
         let mut buffer = String::new();
         let _ = file.read_to_string(&mut buffer);
         ReportParser::new(buffer.as_str())
+    }
+}
+
+impl<P: Stream<Item=char>> From<ParseError<P>> for RecordParseError {
+    fn from(error: ParseError<P>) -> Self {
+        let line = error.position.line;
+        let column = error.position.column;
+        RecordParseError { line: line, column: column }
     }
 }
 
@@ -78,26 +85,14 @@ impl<P: AsRef<Path>> From<P> for ReportParser {
 
 #[inline]
 pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
-    match parser(record).parse(input) {
-        Ok((record, _)) => Ok(record),
-        Err(error) => {
-            let column = error.position.column;
-            let source = input.to_string();
-            Err( RecordParsedError::Record(source, column) )
-        }
-    }
+    let (record, _) = try!(parser(record).parse(input));
+    Ok(record)
 }
 
 #[inline]
 pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {
-    match parser(report).parse(input) {
-        Ok((records, _)) => Ok(records),
-        Err(error) => {
-            let column = error.position.column;
-            let source = input.to_string();
-            Err( RecordParsedError::Record(source, column) )
-        }
-    }
+    let (records, _) = try!(parser(report).parse(input));
+    Ok(records)
 }
 
 /// processes the records in order
