@@ -11,7 +11,7 @@
 use combine:: { parser, Parser };
 use lines::linereader:: { LineReader };
 use record:: { LCOVRecord };
-use combinator:: { record };
+use combinator:: { record, report };
 use std::str:: { from_utf8, Utf8Error };
 use std::io:: { Read, ErrorKind };
 use std::result:: { Result };
@@ -91,6 +91,23 @@ pub fn parse_record(input: &[u8]) -> Result<LCOVRecord, RecordParsedError> {
         Ok(value) => {
             match parser(record).parse(value) {
                 Ok((record, _)) => Ok(record),
+                Err(error) => {
+                    let column = error.position.column;
+                    let source = value.to_string();
+                    Err( RecordParsedError::Record(source, column) )
+                }
+            }
+        },
+        Err(error) => Err( RecordParsedError::UTF8(error) )
+    }
+}
+
+#[inline]
+pub fn parse_report(input: &[u8]) -> Result<Vec<LCOVRecord>, RecordParsedError> {
+    match from_utf8(input) {
+        Ok(value) => {
+            match parser(report).parse(value) {
+                Ok((records, _)) => Ok(records),
                 Err(error) => {
                     let column = error.position.column;
                     let source = value.to_string();
