@@ -30,21 +30,21 @@ pub struct RecordParseError {
 /// # Examples
 ///
 /// ```
-/// use lcov_parser:: { ReportParser, LCOVRecord };
+/// use lcov_parser:: { LCOVParser, LCOVRecord };
 ///
-/// let res = ReportParser::new("TN:testname\nSF:/path/to/source.rs\n").parse().unwrap();
+/// let res = LCOVParser::new("TN:testname\nSF:/path/to/source.rs\n").parse().unwrap();
 ///
 /// assert_eq!(res[0], LCOVRecord::TestName("testname".to_string()));
 /// assert_eq!(res[1], LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
 /// ```
 
-pub struct ReportParser {
+pub struct LCOVParser {
     report: String
 }
 
-impl ReportParser {
+impl LCOVParser {
     pub fn new(report: &str) -> Self {
-        ReportParser { report: report.to_string() }
+        LCOVParser { report: report.to_string() }
     }
     pub fn parse(&self) -> ParseResult<Vec<LCOVRecord>> {
         let value = self.report.as_str();
@@ -53,12 +53,12 @@ impl ReportParser {
     }
 }
 
-impl<P: AsRef<Path>> From<P> for ReportParser {
+impl<P: AsRef<Path>> From<P> for LCOVParser {
     fn from(path: P) -> Self {
         let mut file = File::open(path).unwrap();
         let mut buffer = String::new();
         let _ = file.read_to_string(&mut buffer);
-        ReportParser::new(buffer.as_str())
+        LCOVParser::new(buffer.as_str())
     }
 }
 
