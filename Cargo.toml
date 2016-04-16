@@ -10,4 +10,3 @@ readme = "README.md"
 
 [dependencies]
 combine = "1.2.1"
-lines = "0.0.4"

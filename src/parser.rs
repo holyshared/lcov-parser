@@ -9,11 +9,10 @@
 //! Parser of LCOV report.
 
 use combine:: { parser, Parser };
-use lines::linereader:: { LineReader };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
 use std::str:: { from_utf8, Utf8Error };
-use std::io:: { Read, ErrorKind };
+use std::io:: { ErrorKind };
 use std::result:: { Result };
 use std::ops:: { Fn };
 
@@ -30,49 +29,6 @@ pub enum RecordParsedError {
     Record(String, i32),
     UTF8(Utf8Error)
 }
-
-///
-/// # Examples
-///
-/// ```
-/// use std::io:: { Read };
-/// use lcov_parser:: { LCOVParser, LCOVRecord, ParsedResult };
-///
-/// let mut parser = LCOVParser::new("TN:testname\nSF:/path/to/source.rs\n".as_bytes());
-/// let res1 = parser.parse_next();
-/// let res2 = parser.parse_next();
-///
-/// assert_eq!(res1, ParsedResult::Ok(LCOVRecord::TestName("testname".to_string()), 1));
-/// assert_eq!(res2, ParsedResult::Ok(LCOVRecord::SourceFile("/path/to/source.rs".to_string()), 2));
-/// ```
-
-pub struct LCOVParser<R> {
-    line: u32,
-    reader: LineReader<R>
-}
-
-impl<R: Read> LCOVParser<R> {
-    pub fn new(reader: R) -> Self {
-        LCOVParser { reader: LineReader::new(reader), line: 0 }
-    }
-    pub fn parse_next(&mut self) -> ParsedResult {
-        match self.reader.read_line() {
-            Ok(b) if b.is_empty() => ParsedResult::Eof,
-            Ok(input) => {
-                self.line = self.line + 1;
-                match parse_record(input) {
-                    Ok(record) => ParsedResult::Ok(record, self.line),
-                    Err(error) => ParsedResult::Err(error)
-                }
-            },
-            Err(error) => ParsedResult::Err( RecordParsedError::Read(error.kind()) )
-        }
-    }
-    pub fn current_record_count(&self) -> u32 {
-        self.line
-    }
-}
-
 
 ///
 /// # Examples
@@ -151,20 +107,19 @@ pub fn parse_report(input: &str) -> Result<Vec<LCOVRecord>, RecordParsedError> {
 /// ```
 /// use lcov_parser:: { each_records };
 ///
-/// each_records(b"TN:test_name\n", |r| println!("{:?}", r))
+/// each_records("TN:test_name\n", |r| println!("{:?}", r))
 /// ```
 
 #[inline]
-pub fn each_records<F>(input: &[u8], callback: F)
+pub fn each_records<F>(input: &str, callback: F)
     where F : Fn(LCOVRecord) {
 
-    let mut parser = LCOVParser::new(input);
-
-    loop {
-        match parser.parse_next() {
-            ParsedResult::Ok(record, _) => callback(record),
-            ParsedResult::Eof => { break; },
-            ParsedResult::Err(error) => panic!("{:?}", error)
-        }
+    match parse_report(input) {
+        Ok(records) => {
+            for record in records {
+                callback(record);
+            }
+        },
+        Err(error) => panic!("{:?}", error)
     }
 }
