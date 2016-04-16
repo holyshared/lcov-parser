@@ -9,13 +9,12 @@ LCOV report parser for Rust.
 
 ## Basic usage
 
-If you simply want to parse, use the **each_records**.  
-You can run the parsing process on a record-by-record basis in **each_records**.
+Create a LCOVParser object, and then parse the data.
 
 ```rust
 extern crate lcov_parser;
 
-use lcov_parser:: { each_records, LCOVRecord };
+use lcov_parser:: { LCOVParser, LCOVRecord };
 
 fn main() {
     let content = concat!(
@@ -27,50 +26,33 @@ fn main() {
         "end_of_record\n"
     );
 
-    each_records(content.as_bytes(), | record | {
+    let records = LCOVParser::new(content).parse().unwrap();
+
+    for record in records.into_iter() {
         match record {
             LCOVRecord::TestName(name) => println!("Test: {}", name),
             LCOVRecord::SourceFile(file_name) => println!("File: {}", file_name),
             LCOVRecord::Data(line_number, execution_count, _) => println!("Line: {}, Executed: {}", line_number, execution_count),
-            LCOVRecord::EndOfRecord => println!("Finish")
+            LCOVRecord::EndOfRecord => println!("Finish"),
+            _ => { continue; }
         }
-    });
+    }
 }
 ```
 
-## LCOVParser
-
-When you use the **LCOVParser**, it will be able to control the processing of parse.
-
-```rust
-let records = "TN:testname\nSF:/path/to/source.rs\n".as_bytes();
-let mut parser = LCOVParser::new(records);
-
-loop {
-	match parser.parse_next() {
-		ParsedResult::Ok(record, _) => println!("{:?}", record),
-		ParsedResult::Eof => { break; },
-		ParsedResult::Err(error) => println!("{:?}", error)
-	}
-}
-```
+## Parsing the file
 
 It can also be used to parse the report file.
 
-
 ```rust
-match File::open(file) {
-	Ok(file) => {
-		let mut parser = LCOVParser::new(file);
-        loop {
-			match parser.parse_next() {
-				ParsedResult::Ok(record, _) => println!("{:?}", record),
-				ParsedResult::Eof => { break; },
-				ParsedResult::Err(error) => println!("{:?}", error)
-			}
-		}
-	},
-	Err(error) => panic!("{:?}", error)
+let records = LCOVParser::from("/path/to/report.lcov").parse().unwrap();
+
+for record in records.iter() {
+    match record {
+        &LCOVRecord::SourceFile(ref name) => println!("start file: {}", name),
+        &LCOVRecord::EndOfRecord => println!("end file"),
+        _ => { continue; }
+    }
 }
 ```
 
