@@ -1,8 +1,8 @@
 extern crate lcov_parser;
 
-use lcov_parser:: { LCOVParser, ParsedResult };
+use lcov_parser:: { ReportParser };
 use std::fs:: { File };
-use std::io:: { ErrorKind };
+use std::io:: { Read, ErrorKind };
 use std::env:: { current_dir };
 
 fn main() {
@@ -11,15 +11,13 @@ fn main() {
     let read_file_path = file.clone();
 
     match File::open(file) {
-        Ok(file) => {
-            let mut parser = LCOVParser::new(file);
+        Ok(ref mut file) => {
+            let mut buffer = String::new();
+            let _ = file.read_to_string(&mut buffer);
+            let records = ReportParser::new(buffer.as_str()).parse().unwrap();
 
-            loop {
-                match parser.parse_next() {
-                    ParsedResult::Ok(record, _) => println!("{:?}", record),
-                    ParsedResult::Eof => { break; },
-                    ParsedResult::Err(error) => println!("{:?}", error)
-                }
+            for record in records.iter() {
+                println!("{:?}", record);
             }
         },
         Err(error) => {
