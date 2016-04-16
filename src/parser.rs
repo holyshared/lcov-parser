@@ -95,8 +95,8 @@ impl ReportParser {
         ReportParser { report: report.to_string() }
     }
     pub fn parse(&self) -> Result<Vec<LCOVRecord>, RecordParsedError> {
-        let bytes = self.report.as_bytes();
-        match parse_report(bytes) {
+        let value = self.report.as_str();
+        match parse_report(value) {
             Ok(records) =>  Ok(records),
             Err(error) => Err(error)
         }
@@ -133,19 +133,14 @@ pub fn parse_record(input: &[u8]) -> Result<LCOVRecord, RecordParsedError> {
 }
 
 #[inline]
-pub fn parse_report(input: &[u8]) -> Result<Vec<LCOVRecord>, RecordParsedError> {
-    match from_utf8(input) {
-        Ok(value) => {
-            match parser(report).parse(value) {
-                Ok((records, _)) => Ok(records),
-                Err(error) => {
-                    let column = error.position.column;
-                    let source = value.to_string();
-                    Err( RecordParsedError::Record(source, column) )
-                }
-            }
-        },
-        Err(error) => Err( RecordParsedError::UTF8(error) )
+pub fn parse_report(input: &str) -> Result<Vec<LCOVRecord>, RecordParsedError> {
+    match parser(report).parse(input) {
+        Ok((records, _)) => Ok(records),
+        Err(error) => {
+            let column = error.position.column;
+            let source = input.to_string();
+            Err( RecordParsedError::Record(source, column) )
+        }
     }
 }
 
