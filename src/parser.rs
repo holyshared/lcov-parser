@@ -17,13 +17,16 @@ use std::fs:: { File };
 use std::result:: { Result };
 use std::path:: { Path };
 use std::convert:: { From };
+use std::fmt:: { Display, Formatter, Result as FormatResult };
+use std::error::Error;
 
 pub type ParseResult<T> = Result<T, RecordParseError>;
 
 #[derive(PartialEq, Debug)]
 pub struct RecordParseError {
     pub line: i32,
-    pub column: i32
+    pub column: i32,
+    pub message: String
 }
 
 ///
@@ -62,11 +65,24 @@ impl<P: AsRef<Path>> From<P> for LCOVParser {
     }
 }
 
-impl<P: Stream<Item=char>> From<ParseError<P>> for RecordParseError {
+impl<'a, P: Stream<Item=char, Range=&'a str>> From<ParseError<P>> for RecordParseError {
     fn from(error: ParseError<P>) -> Self {
         let line = error.position.line;
         let column = error.position.column;
-        RecordParseError { line: line, column: column }
+
+        RecordParseError { line: line, column: column, message: format!("{}", error) }
+    }
+}
+
+impl Display for RecordParseError {
+    fn fmt(&self, f: &mut Formatter) -> FormatResult {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl Error for RecordParseError {
+    fn description(&self) -> &str {
+        &self.message[..]
     }
 }
 
