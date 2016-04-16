@@ -14,6 +14,7 @@ use combinator:: { record, report };
 use std::io:: { ErrorKind };
 use std::result:: { Result };
 use std::ops:: { Fn };
+use std::convert:: { From };
 
 #[derive(PartialEq, Debug)]
 pub enum ParsedResult {
@@ -54,6 +55,12 @@ impl ReportParser {
             Ok(records) =>  Ok(records),
             Err(error) => Err(error)
         }
+    }
+}
+
+impl<'a, T: AsRef<&'a str>> From<T> for ReportParser {
+    fn from(input: T) -> Self {
+        ReportParser::new(input.as_ref())
     }
 }
 
