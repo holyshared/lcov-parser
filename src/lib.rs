@@ -8,6 +8,8 @@
 
 //! lcov-parser to provide an API to parse LCOV report.
 
+#![doc(html_root_url = "https://holyshared.github.io/lcov-parser/")]
+
 #[macro_use]
 extern crate combine;
 
