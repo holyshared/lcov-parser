@@ -15,6 +15,7 @@ use combinator:: { record, report };
 use std::io:: { Read };
 use std::fs:: { File };
 use std::result:: { Result };
+use std::io:: { Result as IOResult };
 use std::path:: { Path };
 use std::convert:: { From };
 use std::fmt:: { Display, Formatter, Result as FormatResult };
@@ -54,14 +55,11 @@ impl LCOVParser {
         let records = try!(parse_report(value));
         Ok(records)
     }
-}
-
-impl<P: AsRef<Path>> From<P> for LCOVParser {
-    fn from(path: P) -> Self {
-        let mut file = File::open(path).unwrap();
+    pub fn from_file<P: AsRef<Path>>(path: P) -> IOResult<Self> {
+        let mut file = try!(File::open(path));
         let mut buffer = String::new();
         let _ = file.read_to_string(&mut buffer);
-        LCOVParser::new(buffer.as_str())
+        Ok(LCOVParser::new(buffer.as_str()))
     }
 }
 
