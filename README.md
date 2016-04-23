@@ -45,7 +45,8 @@ fn main() {
 It can also be used to parse the report file.
 
 ```rust
-let records = LCOVParser::from("/path/to/report.lcov").parse().unwrap();
+let parser = LCOVParser::from_file("/path/to/report.lcov").unwrap();
+let records = parser.parse().unwrap();
 
 for record in records.iter() {
     match record {
