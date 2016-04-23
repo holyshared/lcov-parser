@@ -1,6 +1,6 @@
 [package]
 name = "lcov-parser"
-version = "1.0.0"
+version = "1.0.1"
 keywords = [ "parser", "LCOV", "report", "code-coverage" ]
 description = "LCOV report parser for Rust"
 authors = [ "holyshared <holy.shared.design@gmail.com>" ]
