@@ -1,15 +1,19 @@
-platform: x64
-os: MinGW
 environment:
-  RUST_INSTALL_DIR: C:\Rust
-  RUST_INSTALL_TRIPLE: i686-pc-windows-gnu
-  RUST_VERSION: 1.1.0
+  matrix:
+  - TARGET: x86_64-pc-windows-gnu
+    MSYS_BITS: 64
+  - TARGET: i686-pc-windows-gnu
+    MSYS_BITS: 32
+  - TARGET: x86_64-pc-windows-msvc
+  - TARGET: i686-pc-windows-msvc
 install:
-  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-$Env:RUST_VERSION-$Env:RUST_INSTALL_TRIPLE.exe"
-  - cmd: rust-%RUST_VERSION%-%RUST_INSTALL_TRIPLE%.exe /VERYSILENT /NORESTART /COMPONENTS="rust,gcc,cargo" /DIR="%RUST_INSTALL_DIR%"
-  - cmd: SET PATH=%PATH%;%RUST_INSTALL_DIR%\bin;C:\MINGW\bin\
-  - rustc --version
-  - cargo --version
+  - ps: Start-FileDownload "https://static.rust-lang.org/dist/rust-nightly-${env:TARGET}.exe"
+  - rust-nightly-%TARGET%.exe /VERYSILENT /NORESTART /DIR="C:\Program Files (x86)\Rust"
+  - set PATH=%PATH%;C:\Program Files (x86)\Rust\bin
+  - if defined MSYS_BITS set PATH=%PATH%;C:\msys64\mingw%MSYS_BITS%\bin;C:\msys64\usr\bin
+  - set CARGO_TARGET_DIR=%APPVEYOR_BUILD_FOLDER%\target
+  - rustc -V
+  - cargo -V
 build: false
 test_script:
   - cargo build -v
