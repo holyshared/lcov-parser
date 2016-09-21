@@ -38,7 +38,7 @@ pub struct RecordParseError {
 ///
 /// let res = LCOVParser::new("TN:testname\nSF:/path/to/source.rs\n").parse().unwrap();
 ///
-/// assert_eq!(res[0], LCOVRecord::TestName("testname".to_string()));
+/// assert_eq!(res[0], LCOVRecord::TestName(Some("testname".to_string())));
 /// assert_eq!(res[1], LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
 /// ```
 
@@ -93,7 +93,7 @@ impl Error for RecordParseError {
 ///
 /// let result = parse_record("TN:test_name\n");
 ///
-/// assert_eq!(result.unwrap(), LCOVRecord::TestName("test_name".to_string()));
+/// assert_eq!(result.unwrap(), LCOVRecord::TestName(Some("test_name".to_string())));
 /// ```
 
 #[inline]

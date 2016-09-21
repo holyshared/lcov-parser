@@ -23,7 +23,8 @@ pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I:
 
 #[inline]
 fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    let test_name = parser(to_string::<I>).map( | s: String | LCOVRecord::TestName(s) );
+    let test_name = optional(parser(to_string::<I>))
+        .map(| s: Option<String> | LCOVRecord::TestName(s));
     between(string("TN:"), newline(), test_name).parse_state(input)
 }
 

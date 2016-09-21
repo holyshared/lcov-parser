@@ -15,7 +15,7 @@ use parser:: { parse_record };
 #[derive(Debug, PartialEq, Clone)]
 pub enum LCOVRecord
 {
-    TestName(String),                 // TN:<test name>
+    TestName(Option<String>),         // TN:<test name>
     SourceFile(String),               // SF:<absolute path to the source file>
     Data(u32, u32, Option<String>),   // DA:<line number>,<execution count>[,<checksum>]
     FunctionName(u32, String),        // FN:<line number of function start>,<function name> for each function
@@ -38,7 +38,7 @@ pub enum LCOVRecord
 /// use lcov_parser:: { LCOVRecord };
 ///
 /// let actual = LCOVRecord::from("TN:product_test\n");
-/// let expected = LCOVRecord::TestName("product_test".to_string());
+/// let expected = LCOVRecord::TestName(Some("product_test".to_string()));
 ///
 /// assert_eq!(actual, expected);
 /// ```

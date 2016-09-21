@@ -63,7 +63,10 @@ mod tests {
     #[test]
     fn test_name() {
         let result = parser(record).parse("TN:test_name\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::TestName("test_name".to_string()), ""));
+        assert_eq!(result.unwrap(), (LCOVRecord::TestName(Some("test_name".to_string())), ""));
+
+        let result = parser(record).parse("TN:\n");
+        assert_eq!(result.unwrap(), (LCOVRecord::TestName(None), ""));
     }
 
     #[test]
