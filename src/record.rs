@@ -19,7 +19,7 @@ pub enum LCOVRecord
     SourceFile(String),               // SF:<absolute path to the source file>
     Data(LineData),                   // DA:<line number>,<execution count>[,<checksum>]
     FunctionName(FunctionName),       // FN:<line number of function start>,<function name> for each function
-    FunctionData(u32, String),        // FNDA:<execution count>,<function name>
+    FunctionData(FunctionData),       // FNDA:<execution count>,<function name>
     FunctionsFound(u32),              // FNF:<number of functions found>
     FunctionsHit(u32),                // FNH:<number of function hit>
     LinesHit(u32),                    // LH:<number of lines with an execution count> greater than 0
@@ -41,6 +41,12 @@ pub struct LineData {
 pub struct FunctionName {
     pub name: String,
     pub line: u32
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct FunctionData {
+    pub name: String,
+    pub count: u32
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -78,6 +84,12 @@ impl From<LineData> for LCOVRecord {
 impl From<FunctionName> for LCOVRecord {
     fn from(input: FunctionName) -> Self {
         LCOVRecord::FunctionName(input)
+    }
+}
+
+impl From<FunctionData> for LCOVRecord {
+    fn from(input: FunctionData) -> Self {
+        LCOVRecord::FunctionData(input)
     }
 }
 

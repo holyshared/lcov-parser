@@ -58,7 +58,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 mod tests {
     use super::*;
     use combine:: { parser, Parser };
-    use record:: { LCOVRecord, LineData, FunctionName, BranchData };
+    use record:: { LCOVRecord, LineData, FunctionName, FunctionData, BranchData };
 
     #[test]
     fn test_name() {
@@ -99,7 +99,8 @@ mod tests {
     #[test]
     fn function_data() {
         let result = parser(record).parse("FNDA:5,main\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionData(5, "main".to_string()), ""));
+        let func_data = FunctionData { name: "main".to_string(), count: 5 };
+        assert_eq!(result.unwrap(), (LCOVRecord::FunctionData(func_data), ""));
     }
 
     #[test]
