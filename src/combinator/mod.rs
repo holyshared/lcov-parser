@@ -58,7 +58,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 mod tests {
     use super::*;
     use combine:: { parser, Parser };
-    use record:: { LCOVRecord };
+    use record:: { LCOVRecord, BranchData };
 
     #[test]
     fn test_name() {
@@ -125,14 +125,16 @@ mod tests {
 
     #[test]
     fn branch_data() {
+        let branch = BranchData { line: 1, block: 2, branch: 3, taken: 0 };
         let result = parser(record).parse("BRDA:1,2,3,-\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(1, 2, 3, 0), ""));
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(branch), ""));
     }
 
     #[test]
     fn branch_data_with_branch_times() {
+        let branch = BranchData { line: 1, block: 2, branch: 3, taken: 4 };
         let result = parser(record).parse("BRDA:1,2,3,4\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(1, 2, 3, 4), ""));
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(branch), ""));
     }
 
     #[test]

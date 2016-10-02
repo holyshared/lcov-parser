@@ -24,10 +24,18 @@ pub enum LCOVRecord
     FunctionsHit(u32),                // FNH:<number of function hit>
     LinesHit(u32),                    // LH:<number of lines with an execution count> greater than 0
     LinesFound(u32),                  // LF:<number of instrumented lines>
-    BranchData(u32, u32, u32, u32),   // BRDA:<line number>,<block number>,<branch number>,<taken>
+    BranchData(BranchData),           // BRDA:<line number>,<block number>,<branch number>,<taken>
     BranchesFound(u32),               // BRF:<number of branches found>
     BranchesHit(u32),                 // BRH:<number of branches hit>
     EndOfRecord                       // end_of_record
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct BranchData {
+    pub line: u32,
+    pub block: u32,
+    pub branch: u32,
+    pub taken: u32
 }
 
 /// Parse the record from &str.
@@ -45,5 +53,11 @@ pub enum LCOVRecord
 impl<'a> From<&'a str> for LCOVRecord {
     fn from(input: &'a str) -> Self {
         parse_record(input).unwrap()
+    }
+}
+
+impl From<BranchData> for LCOVRecord {
+    fn from(input: BranchData) -> Self {
+        LCOVRecord::BranchData(input)
     }
 }
