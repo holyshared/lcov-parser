@@ -58,7 +58,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 mod tests {
     use super::*;
     use combine:: { parser, Parser };
-    use record:: { LCOVRecord, BranchData };
+    use record:: { LCOVRecord, LineData, BranchData };
 
     #[test]
     fn test_name() {
@@ -78,13 +78,15 @@ mod tests {
     #[test]
     fn data() {
         let result = parser(record).parse("DA:1,2\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, None), ""));
+        let line = LineData { line: 1, count: 2, checksum: None };
+        assert_eq!(result.unwrap(), (LCOVRecord::Data(line), ""));
     }
 
     #[test]
     fn data_with_checksum() {
         let result = parser(record).parse("DA:1,2,3sdfjiji56\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, Some("3sdfjiji56".to_string())), ""));
+        let line = LineData { line: 1, count: 2, checksum: Some("3sdfjiji56".to_string()) };
+        assert_eq!(result.unwrap(), (LCOVRecord::Data(line), ""));
     }
 
     #[test]

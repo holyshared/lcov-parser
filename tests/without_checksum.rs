@@ -47,8 +47,8 @@ fn without_checksum() {
                 line_result = LineResult { executed: 0, unused: 0 };
                 file_result = FileResult { name: name.clone(), lines: LineResult { executed: 0, unused: 0 } };
             },
-            &LCOVRecord::Data(_, executed_count, _) => {
-                if executed_count >= 1 {
+            &LCOVRecord::Data(ref line) => {
+                if line.count >= 1 {
                     line_result.executed = line_result.executed + 1;
                 } else {
                     line_result.unused = line_result.unused + 1;
