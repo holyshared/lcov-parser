@@ -12,10 +12,9 @@ use combine:: { parser, Parser, ParseError };
 use combine::primitives:: { Stream };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
-use std::io:: { Read };
 use std::fs:: { File };
 use std::result:: { Result };
-use std::io:: { Result as IOResult };
+use std::io:: { Result as IOResult, Error as IOError, Read, BufRead, BufReader };
 use std::path:: { Path };
 use std::convert:: { From };
 use std::fmt:: { Display, Formatter, Result as FormatResult };
@@ -25,8 +24,8 @@ pub type ParseResult<T> = Result<T, RecordParseError>;
 
 #[derive(PartialEq, Debug)]
 pub struct RecordParseError {
-    pub line: i32,
-    pub column: i32,
+    pub line: u32,
+    pub column: u32,
     pub message: String
 }
 
@@ -68,7 +67,11 @@ impl<'a, P: Stream<Item=char, Range=&'a str>> From<ParseError<P>> for RecordPars
         let line = error.position.line;
         let column = error.position.column;
 
-        RecordParseError { line: line, column: column, message: format!("{}", error) }
+        RecordParseError {
+            line: line as u32,
+            column: column as u32,
+            message: format!("{}", error)
+        }
     }
 }
 
@@ -81,6 +84,63 @@ impl Display for RecordParseError {
 impl Error for RecordParseError {
     fn description(&self) -> &str {
         &self.message[..]
+    }
+}
+
+pub enum LCOVParseError {
+    IOError(IOError),
+    RecordParseError(RecordParseError)
+}
+
+impl From<IOError> for LCOVParseError {
+    fn from(err: IOError) -> Self {
+        LCOVParseError::IOError(err)
+    }
+}
+impl From<RecordParseError> for LCOVParseError {
+    fn from(err: RecordParseError) -> Self {
+        LCOVParseError::RecordParseError(err)
+    }
+}
+
+pub enum LCOVParseResult {
+    Ok(LCOVRecord),
+    Eof
+}
+
+pub struct LazyParser<T> {
+    line: u32,
+    reader: BufReader<T>
+}
+
+impl<T: Read> LazyParser<T> {
+    pub fn new(reader: T) -> Self {
+        LazyParser {
+            line: 0,
+            reader: BufReader::new(reader)
+        }
+    }
+    pub fn next(&mut self) -> Result<LCOVParseResult, LCOVParseError> {
+        let mut line = String::new();
+        let size = try!(self.reader.read_line(&mut line));
+        if size <= 0 {
+            return Ok(LCOVParseResult::Eof);
+        }
+        self.line += 1;
+        let record = try!(self.parse_record(line.as_str()));
+        return Ok( LCOVParseResult::Ok(record) );
+    }
+    fn parse_record(&mut self, line: &str) -> Result<LCOVRecord, RecordParseError> {
+        match parse_record(line) {
+            Ok(record) => Ok(record),
+            Err(err) => {
+                Err(RecordParseError {
+                    line: self.line.clone(),
+                    column: err.column,
+                    message: err.message
+                })
+            }
+        }
     }
 }
 
