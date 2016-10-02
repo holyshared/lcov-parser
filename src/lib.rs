@@ -17,6 +17,5 @@ pub use self::record::*;
 pub use self::parser::*;
 
 mod combinator;
-
-pub mod record;
-pub mod parser;
+mod record;
+mod parser;
