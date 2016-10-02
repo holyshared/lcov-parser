@@ -58,7 +58,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
 mod tests {
     use super::*;
     use combine:: { parser, Parser };
-    use record:: { LCOVRecord };
+    use record:: { LCOVRecord, LineData, FunctionName, FunctionData, BranchData };
 
     #[test]
     fn test_name() {
@@ -78,25 +78,29 @@ mod tests {
     #[test]
     fn data() {
         let result = parser(record).parse("DA:1,2\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, None), ""));
+        let line = LineData { line: 1, count: 2, checksum: None };
+        assert_eq!(result.unwrap(), (LCOVRecord::Data(line), ""));
     }
 
     #[test]
     fn data_with_checksum() {
         let result = parser(record).parse("DA:1,2,3sdfjiji56\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::Data(1, 2, Some("3sdfjiji56".to_string())), ""));
+        let line = LineData { line: 1, count: 2, checksum: Some("3sdfjiji56".to_string()) };
+        assert_eq!(result.unwrap(), (LCOVRecord::Data(line), ""));
     }
 
     #[test]
     fn function_name() {
         let result = parser(record).parse("FN:5,main\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionName(5, "main".to_string()), ""));
+        let func = FunctionName { name: "main".to_string(), line: 5 };
+        assert_eq!(result.unwrap(), (LCOVRecord::FunctionName(func), ""));
     }
 
     #[test]
     fn function_data() {
         let result = parser(record).parse("FNDA:5,main\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionData(5, "main".to_string()), ""));
+        let func_data = FunctionData { name: "main".to_string(), count: 5 };
+        assert_eq!(result.unwrap(), (LCOVRecord::FunctionData(func_data), ""));
     }
 
     #[test]
@@ -125,14 +129,16 @@ mod tests {
 
     #[test]
     fn branch_data() {
+        let branch = BranchData { line: 1, block: 2, branch: 3, taken: 0 };
         let result = parser(record).parse("BRDA:1,2,3,-\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(1, 2, 3, 0), ""));
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(branch), ""));
     }
 
     #[test]
     fn branch_data_with_branch_times() {
+        let branch = BranchData { line: 1, block: 2, branch: 3, taken: 4 };
         let result = parser(record).parse("BRDA:1,2,3,4\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(1, 2, 3, 4), ""));
+        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(branch), ""));
     }
 
     #[test]

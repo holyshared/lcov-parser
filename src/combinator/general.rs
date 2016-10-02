@@ -9,7 +9,7 @@
 use combine:: { string, optional, token, value, between, newline, parser, Parser, ParserExt, ParseResult };
 use combine::primitives:: { State, Stream };
 use std::string:: { String };
-use record:: { LCOVRecord  };
+use record:: { LCOVRecord, LineData  };
 use combinator::value:: { to_integer, to_string };
 
 #[inline]
@@ -41,7 +41,12 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
     let checksum = optional( token(',').with( parser(to_string::<I>) ) );
     let record = (line_number, execution_count, checksum).map( | t | {
         let (line_number, execution_count, checksum) = t;
-        LCOVRecord::Data(line_number, execution_count, checksum)
+        let line = LineData {
+            line: line_number,
+            count: execution_count,
+            checksum: checksum
+        };
+        LCOVRecord::from(line)
     });
     between(string("DA:"), newline(), record).parse_state(input)
 }

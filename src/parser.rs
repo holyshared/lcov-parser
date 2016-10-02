@@ -84,7 +84,7 @@ impl Error for RecordParseError {
     }
 }
 
-/// parse the record
+/// Parse the record
 ///
 /// # Examples
 ///
@@ -101,6 +101,20 @@ pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
     let (record, _) = try!(parser(record).parse(input));
     Ok(record)
 }
+
+/// Parse the LCOV report
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser:: { LCOVRecord, parse_report };
+///
+/// let result = parse_report("TN:test_name\nSF:/path/to/source.rs\n");
+/// let records = result.unwrap(); 
+///
+/// assert_eq!(records.get(0).unwrap(), &LCOVRecord::TestName(Some("test_name".to_string())));
+/// assert_eq!(records.get(1).unwrap(), &LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
+/// ```
 
 #[inline]
 pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {

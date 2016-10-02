@@ -8,7 +8,7 @@
 
 use combine:: { string, try, token, between, newline, parser, Parser, ParserExt, ParseResult };
 use combine::primitives:: { State, Stream };
-use record:: { LCOVRecord };
+use record:: { LCOVRecord, FunctionName, FunctionData };
 use combinator::value:: { to_integer, to_string };
 
 #[inline]
@@ -27,7 +27,8 @@ fn function_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
 
     let record = (line_number, function_name).map( | t | {
         let (line_number, function_name) = t;
-        LCOVRecord::FunctionName(line_number, function_name)
+        let func = FunctionName { name: function_name, line: line_number };
+        LCOVRecord::from(func)
     });
     between(string("FN:"), newline(), record).parse_state(input)
 }
@@ -40,7 +41,8 @@ fn function_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stre
 
     let record = (execution_count, function_name).map( | t | {
         let (execution_count, function_name) = t;
-        LCOVRecord::FunctionData(execution_count, function_name)
+        let func_data = FunctionData { name: function_name, count: execution_count };
+        LCOVRecord::from(func_data)
     });
     between(string("FNDA:"), newline(), record).parse_state(input)
 }
