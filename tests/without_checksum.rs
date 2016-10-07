@@ -35,7 +35,7 @@ fn without_checksum() {
     let mut report = open_fixture("fixture/report.lcov").unwrap();
 
     let _ = report.read_to_string(&mut buffer);
-    let records = LCOVParser::new(buffer.as_str()).parse().unwrap();
+    let records = LCOVParser::new(buffer.as_bytes()).parse().unwrap();
 
     let mut result = CoverageResult { files: vec!() };
     let mut file_result = FileResult { name: "".to_string(), lines: LineResult { executed: 0, unused: 0 } };

@@ -8,7 +8,7 @@
 
 //! Parser of LCOV report.
 
-use combine:: { parser, Parser, ParseError };
+use combine:: { parser, Parser, ParseError as CombinatorParseError };
 use combine::primitives:: { Stream };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
@@ -29,41 +29,8 @@ pub struct RecordParseError {
     pub message: String
 }
 
-///
-/// # Examples
-///
-/// ```
-/// use lcov_parser:: { LCOVParser, LCOVRecord };
-///
-/// let res = LCOVParser::new("TN:testname\nSF:/path/to/source.rs\n").parse().unwrap();
-///
-/// assert_eq!(res[0], LCOVRecord::TestName(Some("testname".to_string())));
-/// assert_eq!(res[1], LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
-/// ```
-
-pub struct LCOVParser {
-    report: String
-}
-
-impl LCOVParser {
-    pub fn new(report: &str) -> Self {
-        LCOVParser { report: report.to_string() }
-    }
-    pub fn parse(&self) -> ParseResult<Vec<LCOVRecord>> {
-        let value = self.report.as_str();
-        let records = try!(parse_report(value));
-        Ok(records)
-    }
-    pub fn from_file<P: AsRef<Path>>(path: P) -> IOResult<Self> {
-        let mut file = try!(File::open(path));
-        let mut buffer = String::new();
-        let _ = file.read_to_string(&mut buffer);
-        Ok(LCOVParser::new(buffer.as_str()))
-    }
-}
-
-impl<'a, P: Stream<Item=char, Range=&'a str>> From<ParseError<P>> for RecordParseError {
-    fn from(error: ParseError<P>) -> Self {
+impl<'a, P: Stream<Item=char, Range=&'a str>> From<CombinatorParseError<P>> for RecordParseError {
+    fn from(error: CombinatorParseError<P>) -> Self {
         let line = error.position.line;
         let column = error.position.column;
 
@@ -88,19 +55,19 @@ impl Error for RecordParseError {
 }
 
 #[derive(Debug)]
-pub enum LCOVParseError {
+pub enum ParseError {
     IOError(IOError),
     RecordParseError(RecordParseError)
 }
 
-impl From<IOError> for LCOVParseError {
+impl From<IOError> for ParseError {
     fn from(err: IOError) -> Self {
-        LCOVParseError::IOError(err)
+        ParseError::IOError(err)
     }
 }
-impl From<RecordParseError> for LCOVParseError {
+impl From<RecordParseError> for ParseError {
     fn from(err: RecordParseError) -> Self {
-        LCOVParseError::RecordParseError(err)
+        ParseError::RecordParseError(err)
     }
 }
 
@@ -110,11 +77,11 @@ impl From<RecordParseError> for LCOVParseError {
 ///
 /// ```
 /// use std::fs:: { File };
-/// use lcov_parser:: { LCOVRecord, LazyParser };
+/// use lcov_parser:: { LCOVRecord, LCOVParser };
 ///
 /// let s = File::open("fixture/report.lcov").unwrap();
 ///
-/// let mut parser = LazyParser::new(s);
+/// let mut parser = LCOVParser::new(s);
 /// let mut records = vec![];
 ///
 /// loop {
@@ -127,19 +94,30 @@ impl From<RecordParseError> for LCOVParseError {
 ///
 /// assert_eq!(records[0], LCOVRecord::TestName(Some("test".to_string())));
 /// ```
-pub struct LazyParser<T> {
+pub struct LCOVParser<T> {
     line: u32,
     reader: BufReader<T>
 }
 
-impl<T: Read> LazyParser<T> {
+impl<T: Read> LCOVParser<T> {
     pub fn new(reader: T) -> Self {
-        LazyParser {
+        LCOVParser {
             line: 0,
             reader: BufReader::new(reader)
         }
     }
-    pub fn next(&mut self) -> Result<Option<LCOVRecord>, LCOVParseError> {
+    pub fn parse(&mut self) -> Result<Vec<LCOVRecord>, ParseError> {
+        let mut records = vec![];
+        loop {
+            let result = try!(self.next());
+            match result {
+                Some(record) => records.push(record),
+                None => { break; }
+            }
+        }
+        Ok(records)
+    }
+    pub fn next(&mut self) -> Result<Option<LCOVRecord>, ParseError> {
         let mut line = String::new();
         let size = try!(self.reader.read_line(&mut line));
         if size <= 0 {
@@ -160,6 +138,29 @@ impl<T: Read> LazyParser<T> {
                 })
             }
         }
+    }
+}
+
+pub trait FromFile<T> {
+    fn from_file<P: AsRef<Path>>(path: P) -> IOResult<LCOVParser<T>>;
+}
+
+/// Create a parser from file
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser:: { LCOVParser, LCOVRecord, FromFile };
+///
+/// let mut parser = LCOVParser::from_file("fixture/report.lcov").unwrap();
+/// let result = parser.next().unwrap();
+///
+/// assert_eq!(result, Some(LCOVRecord::TestName(Some("test".to_string()))));
+/// ```
+impl FromFile<File> for LCOVParser<File> {
+    fn from_file<P: AsRef<Path>>(path: P) -> IOResult<LCOVParser<File>> {
+        let file = try!(File::open(path));
+        Ok(LCOVParser::new(file))
     }
 }
 

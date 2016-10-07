@@ -4,7 +4,7 @@ use lcov_parser:: { LCOVParser };
 
 fn main() {
     let input = "TN:testname\nSF:/path/to/source.rs\n";
-    let records = LCOVParser::new(input).parse().unwrap();
+    let records = LCOVParser::new(input.as_bytes()).parse().unwrap();
 
     for record in records.iter() {
         println!("{:?}", record);

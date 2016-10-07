@@ -1,9 +1,9 @@
 extern crate lcov_parser;
 
-use lcov_parser:: { LCOVParser };
+use lcov_parser:: { LCOVParser, FromFile };
 
 fn main() {
-    let parser = LCOVParser::from_file("../../../fixture/report.lcov").unwrap();
+    let mut parser = LCOVParser::from_file("../../../fixture/report.lcov").unwrap();
     let records = parser.parse().unwrap();
 
     for record in records.iter() {

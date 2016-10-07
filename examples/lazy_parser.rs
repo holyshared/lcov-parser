@@ -1,13 +1,13 @@
 extern crate lcov_parser;
 
 use std::fs:: { File };
-use lcov_parser:: { LazyParser };
+use lcov_parser:: { LCOVParser };
 
 fn main() {
     let s = File::open("../../../fixture/report.lcov").unwrap();
 
     let mut records = vec![];
-    let mut parser = LazyParser::new(s);
+    let mut parser = LCOVParser::new(s);
 
     loop {
         let result = parser.next().unwrap();
