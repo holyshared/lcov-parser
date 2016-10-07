@@ -87,6 +87,7 @@ impl Error for RecordParseError {
     }
 }
 
+#[derive(Debug)]
 pub enum LCOVParseError {
     IOError(IOError),
     RecordParseError(RecordParseError)
@@ -103,11 +104,29 @@ impl From<RecordParseError> for LCOVParseError {
     }
 }
 
-pub enum LCOVParseResult {
-    Ok(LCOVRecord),
-    Eof
-}
-
+/// Parse the record one line at a time
+///
+/// # Examples
+///
+/// ```
+/// use std::fs:: { File };
+/// use lcov_parser:: { LCOVRecord, LazyParser };
+///
+/// let s = File::open("fixture/report.lcov").unwrap();
+///
+/// let mut parser = LazyParser::new(s);
+/// let mut records = vec![];
+///
+/// loop {
+///   let result = parser.next().unwrap();
+///   match result {
+///     Some(r) => { records.push(r) },
+///     None => { break; }
+///   }
+/// }
+///
+/// assert_eq!(records[0], LCOVRecord::TestName(Some("test".to_string())));
+/// ```
 pub struct LazyParser<T> {
     line: u32,
     reader: BufReader<T>
@@ -120,15 +139,15 @@ impl<T: Read> LazyParser<T> {
             reader: BufReader::new(reader)
         }
     }
-    pub fn next(&mut self) -> Result<LCOVParseResult, LCOVParseError> {
+    pub fn next(&mut self) -> Result<Option<LCOVRecord>, LCOVParseError> {
         let mut line = String::new();
         let size = try!(self.reader.read_line(&mut line));
         if size <= 0 {
-            return Ok(LCOVParseResult::Eof);
+            return Ok(None);
         }
         self.line += 1;
         let record = try!(self.parse_record(line.as_str()));
-        return Ok( LCOVParseResult::Ok(record) );
+        return Ok( Some(record) );
     }
     fn parse_record(&mut self, line: &str) -> Result<LCOVRecord, RecordParseError> {
         match parse_record(line) {
