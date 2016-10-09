@@ -26,7 +26,7 @@ fn main() {
         "end_of_record\n"
     );
 
-    let records = LCOVParser::new(content).parse().unwrap();
+    let records = LCOVParser::new(content.as_bytes()).parse().unwrap();
 
     for record in records.into_iter() {
         match record {
@@ -45,7 +45,7 @@ fn main() {
 It can also be used to parse the report file.
 
 ```rust
-let parser = LCOVParser::from_file("/path/to/report.lcov").unwrap();
+let mut parser = LCOVParser::from_file("/path/to/report.lcov").unwrap();
 let records = parser.parse().unwrap();
 
 for record in records.iter() {
@@ -55,6 +55,30 @@ for record in records.iter() {
         _ => { continue; }
     }
 }
+```
+
+### Parse of each record
+
+If you want to parse one record at a time, you can use the next method.
+
+```rust
+use std::fs:: { File };
+use lcov_parser:: { LCOVParser, FromFile };
+
+let mut records = vec![];
+let mut parser = LCOVParser::from_file("/path/to/file");
+
+loop {
+    let result = parser.next().unwrap();
+    if result.is_none() {
+        break;
+    }
+    let record = result.unwrap();
+    records.push(record)
+}
+
+println!("{:?}", records);
+println!("{:?}", records.len());
 ```
 
 ## License
