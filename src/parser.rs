@@ -8,8 +8,7 @@
 
 //! Parser of LCOV report.
 
-use combine:: { parser, Parser, ParseError as CombinatorParseError };
-use combine::primitives:: { Stream };
+use combine:: { parser, Parser, ParseError as CombinatorParseError, State };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
 use std::fs:: { File };

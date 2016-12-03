@@ -6,8 +6,8 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-use combine:: { string, optional, token, value, between, newline, parser, Parser, ParserExt, ParseResult };
-use combine::primitives:: { State, Stream };
+use combine:: { optional, token, value, between, parser, Parser, ParseResult, State, Stream };
+use combine::char:: { string, newline };
 use std::string:: { String };
 use record:: { LCOVRecord, LineData  };
 use combinator::value:: { to_integer, to_string };

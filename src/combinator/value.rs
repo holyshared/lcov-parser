@@ -6,8 +6,8 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-use combine:: { many1, digit, satisfy, Parser, ParserExt, ParseResult };
-use combine::primitives:: { State, Stream };
+use combine:: { many1, satisfy, Parser, ParseResult, State, Stream };
+use combine::char:: { digit };
 
 pub fn to_integer<I>(input: State<I>) -> ParseResult<u32, I> where I: Stream<Item=char> {
     many1( digit() )

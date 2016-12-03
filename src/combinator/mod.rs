@@ -24,8 +24,7 @@
 //! * BRH:<number of branches hit>
 //! * end_of_record
 
-use combine:: { parser, many, Parser, ParserExt, ParseResult };
-use combine::primitives:: { State, Stream };
+use combine:: { parser, many, Parser, ParseResult, State, Stream };
 use record:: { LCOVRecord  };
 
 mod value;
