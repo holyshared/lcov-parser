@@ -13,7 +13,7 @@ use record:: { LCOVRecord, LineData  };
 use combinator::value:: { to_integer, to_string };
 
 #[inline]
-pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     parser(end_of_record::<I>)
         .or(parser(test_name::<I>))
         .or(parser(source_file::<I>))
@@ -22,20 +22,20 @@ pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I:
 }
 
 #[inline]
-fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     let test_name = optional(parser(to_string::<I>))
         .map(| s: Option<String> | LCOVRecord::TestName(s));
     between(string("TN:"), newline(), test_name).parse_stream(input)
 }
 
 #[inline]
-fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     let source_file =  parser(to_string::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
     between(string("SF:"), newline(), source_file).parse_stream(input)
 }
 
 #[inline]
-fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     let line_number = parser(to_integer::<I>);
     let execution_count = token(',').with( parser(to_integer::<I>) );
     let checksum = optional( token(',').with( parser(to_string::<I>) ) );
@@ -52,6 +52,6 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
 }
 
 #[inline]
-fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_stream(input)
 }

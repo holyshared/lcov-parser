@@ -177,7 +177,7 @@ impl FromFile<File> for LCOVParser<File> {
 
 #[inline]
 pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
-    let (record, _) = try!(parser(record).parse(input));
+    let (record, _) = try!(parser(record).parse(State::new(input)));
     Ok(record)
 }
 
@@ -197,6 +197,6 @@ pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
 
 #[inline]
 pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {
-    let (records, _) = try!(parser(report).parse(input));
+    let (records, _) = try!(parser(report).parse(State::new(input)));
     Ok(records)
 }

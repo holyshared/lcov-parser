@@ -12,7 +12,7 @@ use record:: { LCOVRecord, BranchData };
 use combinator::value:: { to_integer };
 
 #[inline]
-pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     try(parser(branch_data::<I>))
         .or(try(parser(branches_found::<I>)))
         .or(parser(branches_hit::<I>))
@@ -20,7 +20,7 @@ pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: 
 }
 
 #[inline]
-fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     let line_number = parser(to_integer::<I>);
     let block_number = token(',').with( parser(to_integer::<I>) );
     let branch_number = token(',').with( parser(to_integer::<I>) );
@@ -46,7 +46,7 @@ fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
 }
 
 #[inline]
-fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     let branches_found = parser(to_integer::<I>)
         .map( | branches_found | LCOVRecord::BranchesFound(branches_found) );
 
@@ -54,7 +54,7 @@ fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Str
 }
 
 #[inline]
-fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     let branches_hit = parser(to_integer::<I>)
         .map( | branches_hit | LCOVRecord::BranchesHit(branches_hit) );
 

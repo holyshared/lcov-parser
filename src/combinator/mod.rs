@@ -39,13 +39,13 @@ use combinator::function:: { function_record };
 use combinator::line:: { lines_record };
 
 #[inline]
-pub fn report<I>(input: State<I>) -> ParseResult<Vec<LCOVRecord>, I> where I: Stream<Item=char> {
+pub fn report<I>(input: State<I>) -> ParseResult<Vec<LCOVRecord>, State<I>> where I: Stream<Item=char> {
     let record_parser = parser(record::<I>);
     many(record_parser).parse_stream(input)
 }
 
 #[inline]
-pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
+pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: Stream<Item=char> {
     parser(general_record::<I>)
         .or(parser(function_record::<I>))
         .or(parser(lines_record::<I>))
