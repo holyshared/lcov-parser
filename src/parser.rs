@@ -8,8 +8,7 @@
 
 //! Parser of LCOV report.
 
-use combine:: { parser, Parser, ParseError as CombinatorParseError };
-use combine::primitives:: { Stream };
+use combine:: { parser, Parser, ParseError as CombinatorParseError, State };
 use record:: { LCOVRecord };
 use combinator:: { record, report };
 use std::fs:: { File };
@@ -29,8 +28,8 @@ pub struct RecordParseError {
     pub message: String
 }
 
-impl<'a, P: Stream<Item=char, Range=&'a str>> From<CombinatorParseError<P>> for RecordParseError {
-    fn from(error: CombinatorParseError<P>) -> Self {
+impl<'a> From<CombinatorParseError<State<&'a str>>> for RecordParseError {
+    fn from(error: CombinatorParseError<State<&'a str>>) -> Self {
         let line = error.position.line;
         let column = error.position.column;
 
@@ -178,7 +177,7 @@ impl FromFile<File> for LCOVParser<File> {
 
 #[inline]
 pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
-    let (record, _) = try!(parser(record).parse(input));
+    let (record, _) = try!(parser(record).parse(State::new(input)));
     Ok(record)
 }
 
@@ -198,6 +197,6 @@ pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
 
 #[inline]
 pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {
-    let (records, _) = try!(parser(report).parse(input));
+    let (records, _) = try!(parser(report).parse(State::new(input)));
     Ok(records)
 }
