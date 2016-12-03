@@ -28,8 +28,8 @@ pub struct RecordParseError {
     pub message: String
 }
 
-impl<'a, P: Stream<Item=char, Range=&'a str>> From<CombinatorParseError<P>> for RecordParseError {
-    fn from(error: CombinatorParseError<P>) -> Self {
+impl<'a> From<CombinatorParseError<State<&'a str>>> for RecordParseError {
+    fn from(error: CombinatorParseError<State<&'a str>>) -> Self {
         let line = error.position.line;
         let column = error.position.column;
 
