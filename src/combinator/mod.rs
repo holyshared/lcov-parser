@@ -56,105 +56,111 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, State<I>> where I: 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use combine:: { parser, Parser };
+    use combine:: { parser, Parser, State };
     use record:: { LCOVRecord, LineData, FunctionName, FunctionData, BranchData };
+
+    fn parse_record(input: &str) -> LCOVRecord {
+        let input = State::new(input);
+        let (result, _) = parser(record).parse(input).unwrap();
+        result
+    }
 
     #[test]
     fn test_name() {
-        let result = parser(record).parse("TN:test_name\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::TestName(Some("test_name".to_string())), ""));
+        let with_testname = parse_record("TN:test_name\n");
+        assert_eq!(with_testname, LCOVRecord::TestName(Some("test_name".to_string())));
 
-        let result = parser(record).parse("TN:\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::TestName(None), ""));
+        let without_testname = parse_record("TN:\n");
+        assert_eq!(without_testname, LCOVRecord::TestName(None));
     }
 
     #[test]
     fn source_file() {
-        let result = parser(record).parse("SF:/path/to/source.rs\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::SourceFile("/path/to/source.rs".to_string()), ""));
+        let result = parse_record("SF:/path/to/source.rs\n");
+        assert_eq!(result, LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
     }
 
     #[test]
     fn data() {
-        let result = parser(record).parse("DA:1,2\n");
+        let result = parse_record("DA:1,2\n");
         let line = LineData { line: 1, count: 2, checksum: None };
-        assert_eq!(result.unwrap(), (LCOVRecord::Data(line), ""));
+        assert_eq!(result, LCOVRecord::Data(line));
     }
 
     #[test]
     fn data_with_checksum() {
-        let result = parser(record).parse("DA:1,2,3sdfjiji56\n");
+        let result = parse_record("DA:1,2,3sdfjiji56\n");
         let line = LineData { line: 1, count: 2, checksum: Some("3sdfjiji56".to_string()) };
-        assert_eq!(result.unwrap(), (LCOVRecord::Data(line), ""));
+        assert_eq!(result, LCOVRecord::Data(line));
     }
 
     #[test]
     fn function_name() {
-        let result = parser(record).parse("FN:5,main\n");
+        let result = parse_record("FN:5,main\n");
         let func = FunctionName { name: "main".to_string(), line: 5 };
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionName(func), ""));
+        assert_eq!(result, LCOVRecord::FunctionName(func));
     }
 
     #[test]
     fn function_data() {
-        let result = parser(record).parse("FNDA:5,main\n");
+        let result = parse_record("FNDA:5,main\n");
         let func_data = FunctionData { name: "main".to_string(), count: 5 };
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionData(func_data), ""));
+        assert_eq!(result, LCOVRecord::FunctionData(func_data));
     }
 
     #[test]
     fn functions_found() {
-        let result = parser(record).parse("FNF:10\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionsFound(10), ""));
+        let result = parse_record("FNF:10\n");
+        assert_eq!(result, LCOVRecord::FunctionsFound(10));
     }
 
     #[test]
     fn functions_hit() {
-        let result = parser(record).parse("FNH:10\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::FunctionsHit(10), ""));
+        let result = parse_record("FNH:10\n");
+        assert_eq!(result, LCOVRecord::FunctionsHit(10));
     }
 
     #[test]
     fn lines_hit() {
-        let result = parser(record).parse("LH:5\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::LinesHit(5), ""));
+        let result = parse_record("LH:5\n");
+        assert_eq!(result, LCOVRecord::LinesHit(5));
     }
 
     #[test]
     fn lines_found() {
-        let result = parser(record).parse("LF:10\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::LinesFound(10), ""));
+        let result = parse_record("LF:10\n");
+        assert_eq!(result, LCOVRecord::LinesFound(10));
     }
 
     #[test]
     fn branch_data() {
+        let result = parse_record("BRDA:1,2,3,-\n");
         let branch = BranchData { line: 1, block: 2, branch: 3, taken: 0 };
-        let result = parser(record).parse("BRDA:1,2,3,-\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(branch), ""));
+        assert_eq!(result, LCOVRecord::BranchData(branch));
     }
 
     #[test]
     fn branch_data_with_branch_times() {
+        let result = parse_record("BRDA:1,2,3,4\n");
         let branch = BranchData { line: 1, block: 2, branch: 3, taken: 4 };
-        let result = parser(record).parse("BRDA:1,2,3,4\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchData(branch), ""));
+        assert_eq!(result, LCOVRecord::BranchData(branch));
     }
 
     #[test]
     fn branches_found() {
-        let result = parser(record).parse("BRF:10\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchesFound(10), ""));
+        let result = parse_record("BRF:10\n");
+        assert_eq!(result, LCOVRecord::BranchesFound(10));
     }
 
     #[test]
     fn branches_hit() {
-        let result = parser(record).parse("BRH:10\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::BranchesHit(10), ""));
+        let result = parse_record("BRH:10\n");
+        assert_eq!(result, LCOVRecord::BranchesHit(10));
     }
 
     #[test]
     fn end_of_record() {
-        let result = parser(record).parse("end_of_record\n");
-        assert_eq!(result.unwrap(), (LCOVRecord::EndOfRecord, ""));
+        let result = parse_record("end_of_record\n");
+        assert_eq!(result, LCOVRecord::EndOfRecord);
     }
 }
