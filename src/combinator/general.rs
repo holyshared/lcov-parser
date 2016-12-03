@@ -18,20 +18,20 @@ pub fn general_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I:
         .or(parser(test_name::<I>))
         .or(parser(source_file::<I>))
         .or(parser(data::<I>))
-        .parse_state(input)
+        .parse_stream(input)
 }
 
 #[inline]
 fn test_name<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let test_name = optional(parser(to_string::<I>))
         .map(| s: Option<String> | LCOVRecord::TestName(s));
-    between(string("TN:"), newline(), test_name).parse_state(input)
+    between(string("TN:"), newline(), test_name).parse_stream(input)
 }
 
 #[inline]
 fn source_file<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     let source_file =  parser(to_string::<I>).map( | s: String | LCOVRecord::SourceFile(s) );
-    between(string("SF:"), newline(), source_file).parse_state(input)
+    between(string("SF:"), newline(), source_file).parse_stream(input)
 }
 
 #[inline]
@@ -48,10 +48,10 @@ fn data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=c
         };
         LCOVRecord::from(line)
     });
-    between(string("DA:"), newline(), record).parse_state(input)
+    between(string("DA:"), newline(), record).parse_stream(input)
 }
 
 #[inline]
 fn end_of_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
-    between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_state(input)
+    between(string("end_of_record"), newline(), value(LCOVRecord::EndOfRecord)).parse_stream(input)
 }

@@ -42,7 +42,7 @@ use combinator::line:: { lines_record };
 #[inline]
 pub fn report<I>(input: State<I>) -> ParseResult<Vec<LCOVRecord>, I> where I: Stream<Item=char> {
     let record_parser = parser(record::<I>);
-    many(record_parser).parse_state(input)
+    many(record_parser).parse_stream(input)
 }
 
 #[inline]
@@ -51,7 +51,7 @@ pub fn record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<
         .or(parser(function_record::<I>))
         .or(parser(lines_record::<I>))
         .or(parser(branch_record::<I>))
-        .parse_state(input)
+        .parse_stream(input)
 }
 
 #[cfg(test)]

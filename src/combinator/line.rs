@@ -15,7 +15,7 @@ use combinator::value:: { to_integer };
 pub fn lines_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<Item=char> {
     try(parser(lines_hit::<I>))
         .or(parser(lines_found::<I>))
-        .parse_state(input)
+        .parse_stream(input)
 }
 
 #[inline]
@@ -23,7 +23,7 @@ fn lines_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream<I
     let line_count = parser(to_integer::<I>)
         .map( | lines_hit | LCOVRecord::LinesHit(lines_hit) );
 
-    between(string("LH:"), newline(), line_count).parse_state(input)
+    between(string("LH:"), newline(), line_count).parse_stream(input)
 }
 
 #[inline]
@@ -31,5 +31,5 @@ fn lines_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
     let line_found = parser(to_integer::<I>)
         .map( | line_found | LCOVRecord::LinesFound(line_found) );
 
-    between(string("LF:"), newline(), line_found).parse_state(input)
+    between(string("LF:"), newline(), line_found).parse_stream(input)
 }

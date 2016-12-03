@@ -16,7 +16,7 @@ pub fn branch_record<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: 
     try(parser(branch_data::<I>))
         .or(try(parser(branches_found::<I>)))
         .or(parser(branches_hit::<I>))
-        .parse_state(input)
+        .parse_stream(input)
 }
 
 #[inline]
@@ -42,7 +42,7 @@ fn branch_data<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Stream
         };
         LCOVRecord::from(branch)
     });
-    between(string("BRDA:"), newline(), record).parse_state(input)
+    between(string("BRDA:"), newline(), record).parse_stream(input)
 }
 
 #[inline]
@@ -50,7 +50,7 @@ fn branches_found<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Str
     let branches_found = parser(to_integer::<I>)
         .map( | branches_found | LCOVRecord::BranchesFound(branches_found) );
 
-    between(string("BRF:"), newline(), branches_found).parse_state(input)
+    between(string("BRF:"), newline(), branches_found).parse_stream(input)
 }
 
 #[inline]
@@ -58,5 +58,5 @@ fn branches_hit<I>(input: State<I>) -> ParseResult<LCOVRecord, I> where I: Strea
     let branches_hit = parser(to_integer::<I>)
         .map( | branches_hit | LCOVRecord::BranchesHit(branches_hit) );
 
-    between(string("BRH:"), newline(), branches_hit).parse_state(input)
+    between(string("BRH:"), newline(), branches_hit).parse_stream(input)
 }
