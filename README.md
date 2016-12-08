@@ -25,16 +25,18 @@ fn main() {
         "DA:3,5\n",
         "end_of_record\n"
     );
+    let mut parser = LCOVParser::new(content.as_bytes());
 
-    let records = LCOVParser::new(content.as_bytes()).parse().unwrap();
-
-    for record in records.into_iter() {
-        match record {
-            LCOVRecord::TestName(name) => println!("Test: {}", name),
-            LCOVRecord::SourceFile(file_name) => println!("File: {}", file_name),
-            LCOVRecord::Data(line_number, execution_count, _) => println!("Line: {}, Executed: {}", line_number, execution_count),
-            LCOVRecord::EndOfRecord => println!("Finish"),
-            _ => { continue; }
+    loop {
+        match parser.next().expect("parse the report") {
+            None => { break; },
+            Some(record) => match record {
+                LCOVRecord::TestName(name) => println!("Test: {}", name.unwrap()),
+                LCOVRecord::SourceFile(file_name) => println!("File: {}", file_name),
+                LCOVRecord::Data(data) => println!("Line: {}, Executed: {}", data.line, data.count),
+                LCOVRecord::EndOfRecord => println!("Finish"),
+                _ => { continue; }
+            }
         }
     }
 }
@@ -45,40 +47,37 @@ fn main() {
 It can also be used to parse the report file.
 
 ```rust
-let mut parser = LCOVParser::from_file("/path/to/report.lcov").unwrap();
-let records = parser.parse().unwrap();
+let mut parser = LCOVParser::from_file("../../../fixture/report.lcov").unwrap();
 
-for record in records.iter() {
-    match record {
-        &LCOVRecord::SourceFile(ref name) => println!("start file: {}", name),
-        &LCOVRecord::EndOfRecord => println!("end file"),
-        _ => { continue; }
+loop {
+    match parser.next().expect("parse the report") {
+        None => { break; },
+        Some(record) => match record {
+            LCOVRecord::SourceFile(file_name) => println!("File: {}", file_name),
+            LCOVRecord::EndOfRecord => println!("Finish"),
+            _ => { continue; }
+        }
     }
 }
 ```
 
-### Parse of each record
+## Parsing all
 
-If you want to parse one record at a time, you can use the next method.
+You can parse all using the parse method.
 
 ```rust
-use std::fs:: { File };
-use lcov_parser:: { LCOVParser, FromFile };
+let records = {
+    let mut parser = LCOVParser::from_file("../../../fixture/report.lcov").unwrap();
+    parser.parse().expect("parse the report")
+};
 
-let mut records = vec![];
-let mut parser = LCOVParser::from_file("/path/to/file");
-
-loop {
-    let result = parser.next().unwrap();
-    if result.is_none() {
-        break;
+for record in records.iter() {
+    match record {
+        &LCOVRecord::SourceFile(ref file_name) => println!("File: {}", file_name),
+        &LCOVRecord::EndOfRecord => println!("Finish"),
+        _ => { continue; }
     }
-    let record = result.unwrap();
-    records.push(record)
 }
-
-println!("{:?}", records);
-println!("{:?}", records.len());
 ```
 
 ## License
