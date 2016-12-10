@@ -46,3 +46,16 @@ macro_rules! impl_try_merge_self_summary {
         }
     }
 }
+
+#[macro_export]
+macro_rules! impl_try_merge {
+    ($dest:ty:$field:ident, $append:ty, $err:ty) => {
+        impl<'a> $crate::merger::ops::TryMerge<&'a $append> for $dest {
+            type Err = $err;
+
+            fn try_merge(&mut self, data: &'a $append) -> MergeResult<Self::Err> {
+                self.$field.try_merge(data)
+            }
+        }
+    };
+}

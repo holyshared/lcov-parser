@@ -53,37 +53,10 @@ impl Test {
 }
 
 
-impl<'a> TryMerge<&'a LineData> for Test {
-    type Err = ChecksumError;
-
-    fn try_merge(&mut self, line_data: &'a LineData) -> MergeResult<Self::Err> {
-        self.lines.try_merge(line_data)
-    }
-}
-
-impl<'a> TryMerge<&'a FunctionName> for Test {
-    type Err = FunctionError;
-
-    fn try_merge(&mut self, function_name: &'a FunctionName) -> MergeResult<Self::Err> {
-        self.functions.try_merge(function_name)
-    }
-}
-
-impl<'a> TryMerge<&'a FunctionData> for Test {
-    type Err = FunctionError;
-
-    fn try_merge(&mut self, function_data: &'a FunctionData) -> MergeResult<Self::Err> {
-        self.functions.try_merge(function_data)
-    }
-}
-
-impl<'a> TryMerge<&'a BranchData> for Test {
-    type Err = BranchError;
-
-    fn try_merge(&mut self, branch_data: &'a BranchData) -> MergeResult<Self::Err> {
-        self.branches.try_merge(branch_data)
-    }
-}
+impl_try_merge!(Test:lines, LineData, ChecksumError);
+impl_try_merge!(Test:functions, FunctionName, FunctionError);
+impl_try_merge!(Test:functions, FunctionData, FunctionError);
+impl_try_merge!(Test:branches, BranchData, BranchError);
 
 impl<'a> TryMerge<&'a Test> for Test {
     type Err = TestError;
@@ -95,16 +68,6 @@ impl<'a> TryMerge<&'a Test> for Test {
         Ok(())
     }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 #[derive(Debug, Clone)]
