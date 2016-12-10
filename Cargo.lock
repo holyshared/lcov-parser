@@ -1,6 +1,6 @@
 [root]
 name = "lcov-parser"
-version = "2.1.1"
+version = "3.0.0-beta"
 dependencies = [
  "combine 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
