@@ -32,7 +32,7 @@ fn open_fixture(path: &str) -> Result<File> {
 #[test]
 fn without_checksum() {
     let mut buffer = String::new();
-    let mut report = open_fixture("fixture/report.lcov").unwrap();
+    let mut report = open_fixture("tests/fixtures/parser/report.lcov").unwrap();
 
     let _ = report.read_to_string(&mut buffer);
     let records = LCOVParser::new(buffer.as_bytes()).parse().unwrap();

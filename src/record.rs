@@ -10,6 +10,8 @@
 
 use std::convert:: { From };
 use std::option:: { Option };
+use std::io:: { Result };
+use std::io::prelude::*;
 use parser:: { parse_record };
 
 #[derive(Debug, PartialEq, Clone)]
@@ -97,4 +99,8 @@ impl From<BranchData> for LCOVRecord {
     fn from(input: BranchData) -> Self {
         LCOVRecord::BranchData(input)
     }
+}
+
+pub trait RecordWrite {
+    fn write_records<T: Write>(&self, output: &mut T) -> Result<()>;
 }
