@@ -25,6 +25,7 @@ pub mod function;
 pub mod test;
 pub mod counter;
 
+#[derive(Debug)]
 pub struct Report {
     files: Files
 }

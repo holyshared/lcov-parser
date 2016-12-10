@@ -26,13 +26,13 @@ pub trait TryMerge<Rhs=Self> {
     fn try_merge(&mut self, Rhs) -> MergeResult<Self::Err>;
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ChecksumError {
     Empty(MergeLine),
     Mismatch(MergeLine, MergeLine)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MergeLine {
     pub line: LineNumber,
     pub checksum: Option<CheckSum>
@@ -52,12 +52,12 @@ impl<'a> From<&'a Line> for MergeLine {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum FunctionError {
     Mismatch(FunctionName, FunctionName)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct MergeBranch {
     pub line: LineNumber,
     pub block: u32,
@@ -87,12 +87,12 @@ impl<'a> From<&'a BranchData> for MergeBranch {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum BranchError {
     Mismatch(MergeBranch, MergeBranch)
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TestError {
     Checksum(ChecksumError),
     Function(FunctionError),

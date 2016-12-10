@@ -121,13 +121,14 @@ impl ReportMerger {
 #[cfg(test)]
 mod tests {
     use merger::*;
+    use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
     use std::path::Path;
     use std::fs::File;
     use std::io::*;
 
     #[test]
     fn save_as() {
-        let report_path = "tests/fixtures/merge/fixture1.info";
+        let report_path = "tests/fixtures/merge/fixture.info";
 
         let mut parse = ReportMerger::new();
         let report = parse.merge(&[ report_path ]).unwrap();
@@ -137,8 +138,28 @@ mod tests {
     }
 
     #[test]
+    fn merge_checksum_error() {
+        let report_path = "tests/fixtures/merge/without_checksum_fixture.info";
+        let mut parse = ReportMerger::new();
+        let result = parse.merge(&[ report_path, report_path ]).unwrap_err();
+
+        let checksum_error = ChecksumError::Empty(MergeLine {
+            line: 6,
+            checksum: None
+        });
+        let test_error = TestError::from(checksum_error);
+
+        // see pull request
+        // https://github.com/rust-lang/rust/pull/34192
+        assert!(match result {
+            MergeError::Process(err) => err == test_error,
+            _ => false
+        })
+    }
+
+    #[test]
     fn display() {
-        let report_path = "tests/fixtures/merge/fixture1.info";
+        let report_path = "tests/fixtures/merge/fixture.info";
         let readed_file_content = {
             let mut output = String::new();
             let mut f = File::open(report_path).unwrap();
