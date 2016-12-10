@@ -78,7 +78,7 @@ impl From<RecordParseError> for ParseError {
 /// use std::fs:: { File };
 /// use lcov_parser:: { LCOVRecord, LCOVParser };
 ///
-/// let s = File::open("fixture/report.lcov").unwrap();
+/// let s = File::open("tests/fixtures/parser/report.lcov").unwrap();
 ///
 /// let mut parser = LCOVParser::new(s);
 /// let mut records = vec![];
@@ -151,7 +151,7 @@ pub trait FromFile<T> {
 /// ```
 /// use lcov_parser:: { LCOVParser, LCOVRecord, FromFile };
 ///
-/// let mut parser = LCOVParser::from_file("fixture/report.lcov").unwrap();
+/// let mut parser = LCOVParser::from_file("tests/fixtures/parser/report.lcov").unwrap();
 /// let result = parser.next().unwrap();
 ///
 /// assert_eq!(result, Some(LCOVRecord::TestName(Some("test".to_string()))));

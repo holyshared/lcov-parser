@@ -6,22 +6,17 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! lcov-parser to provide an API to parse LCOV report.
+pub trait Hit {
+    fn is_hit(&self) -> bool;
+}
 
-#![doc(html_root_url = "https://holyshared.github.io/lcov-parser/")]
+pub trait HitCounter {
+    fn hit_count(&self) -> usize;
+}
 
-#[macro_use]
-extern crate combine;
+pub trait FoundCounter {
+    fn found_count(&self) -> usize;
+}
 
-#[macro_use]
-mod macros;
-mod merger;
-mod record;
-mod report;
-mod combinator;
-mod parser;
-
-pub use self::record::*;
-pub use self::parser::*;
-pub use self::merger:: { merge_files };
-pub use self::report::*;
+pub trait HitFoundCounter:HitCounter + FoundCounter {
+}

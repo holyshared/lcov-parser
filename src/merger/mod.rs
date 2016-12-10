@@ -6,22 +6,16 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! lcov-parser to provide an API to parse LCOV report.
-
-#![doc(html_root_url = "https://holyshared.github.io/lcov-parser/")]
-
-#[macro_use]
-extern crate combine;
-
-#[macro_use]
-mod macros;
 mod merger;
-mod record;
-mod report;
-mod combinator;
-mod parser;
+pub mod ops;
 
-pub use self::record::*;
-pub use self::parser::*;
-pub use self::merger:: { merge_files };
-pub use self::report::*;
+pub use merger::merger:: { ReportMerger };
+
+use std::path::Path;
+use report::*;
+use self::ops::MergeError;
+
+pub fn merge_files<T: AsRef<Path>>(files: &[T]) -> Result<Report, MergeError> {
+    let mut merger = ReportMerger::new();
+    merger.merge(files)
+}

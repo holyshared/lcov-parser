@@ -6,22 +6,14 @@
 // option. All files in the project carrying such notice may not be copied,
 // modified, or distributed except according to those terms.
 
-//! lcov-parser to provide an API to parse LCOV report.
+use std::collections::btree_map:: { Iter };
 
-#![doc(html_root_url = "https://holyshared.github.io/lcov-parser/")]
-
-#[macro_use]
-extern crate combine;
-
-#[macro_use]
-mod macros;
-mod merger;
-mod record;
-mod report;
-mod combinator;
-mod parser;
-
-pub use self::record::*;
-pub use self::parser::*;
-pub use self::merger:: { merge_files };
-pub use self::report::*;
+pub trait Summary<K, V> {
+    fn iter(&self) -> Iter<K, V>;
+    fn contains_key(&self, k: &K) -> bool;
+    fn get(&self, key: &K) -> Option<&V>;
+    fn len(&self) -> usize;
+    fn is_empty(&self) -> bool {
+        self.len() <= 0
+    }
+}
