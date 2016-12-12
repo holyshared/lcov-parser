@@ -120,9 +120,11 @@ impl ReportMerger {
 
 #[cfg(test)]
 mod tests {
+    extern crate tempdir;
+
+    use self::tempdir::TempDir;
     use merger::*;
     use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
-    use std::path::Path;
     use std::fs::File;
     use std::io::*;
 
@@ -132,9 +134,14 @@ mod tests {
 
         let mut parse = ReportMerger::new();
         let report = parse.merge(&[ report_path ]).unwrap();
-        let _ = report.save_as("/tmp/report.lcov").unwrap();
 
-        assert_eq!(Path::new("/tmp/report.lcov").exists(), true);
+        {
+            let tmp_dir = TempDir::new("report").expect("create temp dir");
+            let file_path = tmp_dir.path().join("report.lcov");
+            let _ = report.save_as(file_path.clone()).unwrap();
+
+            assert_eq!(file_path.as_path().exists(), true);
+        }
     }
 
     #[test]

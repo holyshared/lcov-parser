@@ -12,3 +12,6 @@ readme = "README.md"
 
 [dependencies]
 combine = "2.0.0"
+
+[dev-dependencies]
+tempdir = "0.3"
