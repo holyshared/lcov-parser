@@ -34,15 +34,15 @@ impl ReportMerger {
     }
     pub fn merge<T: AsRef<Path>>(&mut self, files: &[T]) -> Result<Report, MergeError> {
         for file in files.iter() {
-            try!(self.process_file(file));
+            self.process_file(file)?;
         }
         Ok(Report::new(self.files.clone()))
     }
     fn process_file<T: AsRef<Path>>(&mut self, file: T) -> Result<(), MergeError> {
-        let mut parser = try!(LCOVParser::from_file(file));
+        let mut parser = LCOVParser::from_file(file)?;
 
         loop {
-            let result = try!(parser.next());
+            let result = parser.next()?;
 
             if result.is_none() {
                 break;
@@ -52,11 +52,11 @@ impl ReportMerger {
             match record {
                 LCOVRecord::TestName(ref name) => self.on_test_name(name),
                 LCOVRecord::SourceFile(ref name) => self.on_source_file(name),
-                LCOVRecord::Data(ref data) => try!(self.on_data(data)),
-                LCOVRecord::FunctionName(ref func_name) => try!(self.on_func_name(func_name)),
-                LCOVRecord::FunctionData(ref func_data) => try!(self.on_func_data(func_data)),
-                LCOVRecord::BranchData(ref branch_data) => try!(self.on_branch_data(branch_data)),
-                LCOVRecord::EndOfRecord => try!(self.on_end_of_record()),
+                LCOVRecord::Data(ref data) => self.on_data(data)?,
+                LCOVRecord::FunctionName(ref func_name) => self.on_func_name(func_name)?,
+                LCOVRecord::FunctionData(ref func_data) => self.on_func_data(func_data)?,
+                LCOVRecord::BranchData(ref branch_data) => self.on_branch_data(branch_data)?,
+                LCOVRecord::EndOfRecord => self.on_end_of_record()?,
                 _ => { continue; }
             };
         }
@@ -77,7 +77,7 @@ impl ReportMerger {
     fn on_data(&mut self, line_data: &LineData) -> MergeResult<ChecksumError> {
         if self.test_name.is_some() {
             let test_name = self.test_name.as_ref().unwrap();
-            try!(self.tests.try_merge((test_name, line_data)));
+            self.tests.try_merge((test_name, line_data))?;
         }
         Ok(())
     }
@@ -87,7 +87,7 @@ impl ReportMerger {
         }
 
         let test_name = self.test_name.as_ref().unwrap();
-        try!(self.tests.try_merge((test_name, func_name)));
+        self.tests.try_merge((test_name, func_name))?;
         Ok(())
     }
     fn on_func_data(&mut self, func_data: &FunctionDataRecord) -> MergeResult<FunctionError> {
@@ -96,7 +96,7 @@ impl ReportMerger {
         }
 
         let test_name = self.test_name.as_ref().unwrap();
-        try!(self.tests.try_merge((test_name, func_data)));
+        self.tests.try_merge((test_name, func_data))?;
         Ok(())
     }
     fn on_branch_data(&mut self, branch_data: &BranchDataRecord) -> MergeResult<BranchError> {
@@ -104,14 +104,14 @@ impl ReportMerger {
             return Ok(());
         }
         let test_name = self.test_name.as_ref().unwrap();
-        try!(self.tests.try_merge((test_name, branch_data)));
+        self.tests.try_merge((test_name, branch_data))?;
         Ok(())
     }
     fn on_end_of_record(&mut self) -> MergeResult<TestError> {
         let source_name = self.source_name.as_ref().unwrap();
         let file = File::new(self.tests.clone());
 
-        try!(self.files.try_merge((source_name, &file)));
+        self.files.try_merge((source_name, &file))?;
         self.tests = Tests::new();
         Ok(())
     }

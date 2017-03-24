@@ -62,9 +62,9 @@ impl<'a> TryMerge<&'a Test> for Test {
     type Err = TestError;
 
     fn try_merge(&mut self, other: &'a Test) -> MergeResult<Self::Err> {
-        try!(self.lines.try_merge(other.lines()));
-        try!(self.functions.try_merge(other.functions()));
-        try!(self.branches.try_merge(other.branches()));
+        self.lines.try_merge(other.lines())?;
+        self.functions.try_merge(other.functions())?;
+        self.branches.try_merge(other.branches())?;
         Ok(())
     }
 }

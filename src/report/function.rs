@@ -64,11 +64,11 @@ impl Display for Functions {
             return Ok(());
         }
         for (_, function) in self.iter() {
-            try!(writeln!(f, "FN:{},{}", function.line_number(), function.name()));
-            try!(writeln!(f, "FNDA:{},{}", function.execution_count(), function.name()));
+            writeln!(f, "FN:{},{}", function.line_number(), function.name())?;
+            writeln!(f, "FNDA:{},{}", function.execution_count(), function.name())?;
         }
-        try!(writeln!(f, "FNF:{}", self.hit_count()));
-        try!(writeln!(f, "FNH:{}", self.found_count()));
+        writeln!(f, "FNF:{}", self.hit_count())?;
+        writeln!(f, "FNH:{}", self.found_count())?;
         Ok(())
     }
 }
