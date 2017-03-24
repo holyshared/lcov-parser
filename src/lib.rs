@@ -10,7 +10,6 @@
 
 #![doc(html_root_url = "https://holyshared.github.io/lcov-parser/")]
 
-#[macro_use]
 extern crate combine;
 
 #[macro_use]
