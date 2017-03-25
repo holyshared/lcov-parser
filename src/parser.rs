@@ -108,7 +108,7 @@ impl<T: Read> LCOVParser<T> {
     pub fn parse(&mut self) -> Result<Vec<LCOVRecord>, ParseError> {
         let mut records = vec![];
         loop {
-            let result = try!(self.next());
+            let result = self.next()?;
             match result {
                 Some(record) => records.push(record),
                 None => { break; }
@@ -118,12 +118,12 @@ impl<T: Read> LCOVParser<T> {
     }
     pub fn next(&mut self) -> Result<Option<LCOVRecord>, ParseError> {
         let mut line = String::new();
-        let size = try!(self.reader.read_line(&mut line));
+        let size = self.reader.read_line(&mut line)?;
         if size <= 0 {
             return Ok(None);
         }
         self.line += 1;
-        let record = try!(self.parse_record(line.as_str()));
+        let record = self.parse_record(line.as_str())?;
         return Ok( Some(record) );
     }
     fn parse_record(&mut self, line: &str) -> Result<LCOVRecord, RecordParseError> {
@@ -158,7 +158,7 @@ pub trait FromFile<T> {
 /// ```
 impl FromFile<File> for LCOVParser<File> {
     fn from_file<P: AsRef<Path>>(path: P) -> IOResult<LCOVParser<File>> {
-        let file = try!(File::open(path));
+        let file = File::open(path)?;
         Ok(LCOVParser::new(file))
     }
 }
@@ -177,7 +177,7 @@ impl FromFile<File> for LCOVParser<File> {
 
 #[inline]
 pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
-    let (record, _) = try!(parser(record).parse(State::new(input)));
+    let (record, _) = parser(record).parse(State::new(input))?;
     Ok(record)
 }
 
@@ -189,7 +189,7 @@ pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
 /// use lcov_parser:: { LCOVRecord, parse_report };
 ///
 /// let result = parse_report("TN:test_name\nSF:/path/to/source.rs\n");
-/// let records = result.unwrap(); 
+/// let records = result.unwrap();
 ///
 /// assert_eq!(records.get(0).unwrap(), &LCOVRecord::TestName(Some("test_name".to_string())));
 /// assert_eq!(records.get(1).unwrap(), &LCOVRecord::SourceFile("/path/to/source.rs".to_string()));
@@ -197,6 +197,6 @@ pub fn parse_record(input: &str) -> ParseResult<LCOVRecord> {
 
 #[inline]
 pub fn parse_report(input: &str) -> ParseResult<Vec<LCOVRecord>> {
-    let (records, _) = try!(parser(report).parse(State::new(input)));
+    let (records, _) = parser(report).parse(State::new(input))?;
     Ok(records)
 }

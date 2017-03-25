@@ -25,7 +25,7 @@ pub struct CoverageResult {
 fn open_fixture(path: &str) -> Result<File> {
     let current_dir = current_dir().unwrap();
     let file = current_dir.join(path);
-    let fixture_file = try!(File::open(file));
+    let fixture_file = File::open(file)?;
     Ok(fixture_file)
 }
 

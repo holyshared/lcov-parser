@@ -46,7 +46,7 @@ impl Report {
         self.files.len()
     }
     pub fn save_as<T: AsRef<Path>>(&self, path: T) -> IOResult<()> {
-        let mut output = try!(OpenOptions::new().create(true).write(true).open(path));
+        let mut output = OpenOptions::new().create(true).write(true).open(path)?;
         self.write_records::<OutputFile>(&mut output)
     }
 }
@@ -61,12 +61,12 @@ impl fmt::Display for Report {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (source_name, file) in self.files.iter() {
             for (test_name, test) in file.tests().iter() {
-                try!(writeln!(f, "TN:{}", test_name));
-                try!(writeln!(f, "SF:{}", source_name));
-                try!(write!(f, "{}", test.functions()));
-                try!(write!(f, "{}", test.branches()));
-                try!(write!(f, "{}", test.lines()));
-                try!(writeln!(f, "end_of_record"));
+                writeln!(f, "TN:{}", test_name)?;
+                writeln!(f, "SF:{}", source_name)?;
+                write!(f, "{}", test.functions())?;
+                write!(f, "{}", test.branches())?;
+                write!(f, "{}", test.lines())?;
+                writeln!(f, "end_of_record")?;
             }
         }
         Ok(())

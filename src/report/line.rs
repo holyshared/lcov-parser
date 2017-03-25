@@ -158,12 +158,12 @@ impl Display for Lines {
         }
         for (_, line) in self.iter() {
             match line.checksum() {
-                Some(ref checksum) => try!(writeln!(f, "DA:{},{},{}", line.line_number(), line.execution_count(), checksum)),
-                None => try!(writeln!(f, "DA:{},{}", line.line_number(), line.execution_count()))
+                Some(ref checksum) => writeln!(f, "DA:{},{},{}", line.line_number(), line.execution_count(), checksum)?,
+                None => writeln!(f, "DA:{},{}", line.line_number(), line.execution_count())?
             }
         }
-        try!(writeln!(f, "LF:{}", self.found_count()));
-        try!(writeln!(f, "LH:{}", self.hit_count()));
+        writeln!(f, "LF:{}", self.found_count())?;
+        writeln!(f, "LH:{}", self.hit_count())?;
         Ok(())
     }
 }

@@ -280,12 +280,12 @@ impl Display for Branches {
         }
         for (line_number, blocks) in self.iter() {
             for (_, branch) in blocks.iter() {
-                try!(writeln!(f, "BRDA:{},{},{},{}",
-                    line_number, branch.block(), branch.branch(), branch.execution_count()));
+                writeln!(f, "BRDA:{},{},{},{}",
+                    line_number, branch.block(), branch.branch(), branch.execution_count())?;
             }
         }
-        try!(writeln!(f, "BRF:{}", self.found_count()));
-        try!(writeln!(f, "BRH:{}", self.hit_count()));
+        writeln!(f, "BRF:{}", self.found_count())?;
+        writeln!(f, "BRH:{}", self.hit_count())?;
         Ok(())
     }
 }
@@ -303,7 +303,7 @@ impl<'a> TryMerge<&'a BranchData> for Branches {
         } else {
             let blocks = {
                 let mut blocks = BranchBlocks::new();
-                let _ = try!(blocks.try_merge(data));
+                let _ = blocks.try_merge(data)?;
                 blocks
             };
             self.branches.insert(
