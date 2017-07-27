@@ -9,6 +9,7 @@
 use std::result::Result;
 use std::convert::From;
 use std::io:: { Error as IOError};
+use std::fmt;
 use parser:: { ParseError, RecordParseError };
 use record:: { BranchData };
 use report::line:: { Line };
@@ -32,10 +33,44 @@ pub enum ChecksumError {
     Mismatch(MergeLine, MergeLine)
 }
 
+impl fmt::Display for ChecksumError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &ChecksumError::Empty(ref line) => {
+                write!(f, "No source code checksum: {}", line)
+            },
+            &ChecksumError::Mismatch(ref line1, ref line2) => {
+                write!(f, "Source code checksums do not match: line: {}, left: {}, right: {}",
+                    line1.line(),
+                    line1.checksum(),
+                    line2.checksum())
+            }
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct MergeLine {
-    pub line: LineNumber,
-    pub checksum: Option<CheckSum>
+    line: LineNumber,
+    checksum: Option<CheckSum>
+}
+
+impl MergeLine {
+    pub fn new(line_number: LineNumber, checksum: Option<CheckSum>) -> MergeLine {
+        MergeLine {
+            line: line_number,
+            checksum: checksum
+        }
+    }
+    pub fn line(&self) -> &LineNumber {
+        &self.line
+    }
+    pub fn checksum(&self) -> &str {
+        match self.checksum {
+            Some(ref checksum) => checksum.as_str(),
+            None => &""
+        }
+    }
 }
 
 impl<'a> From<&'a Line> for MergeLine {
@@ -45,16 +80,29 @@ impl<'a> From<&'a Line> for MergeLine {
             Some(value) => Some(value.clone()),
             None => None
         };
-        MergeLine {
-            line: line_number,
-            checksum: checksum
-        }
+        MergeLine::new(line_number, checksum)
+    }
+}
+
+impl fmt::Display for MergeLine {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "line: {}, checksum: {}", self.line(), self.checksum())
     }
 }
 
 #[derive(Debug, PartialEq)]
 pub enum FunctionError {
     Mismatch(FunctionName, FunctionName)
+}
+
+impl fmt::Display for FunctionError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &FunctionError::Mismatch(ref func1, ref func2) => {
+                write!(f, "Function name mismatch: left = {}, right = {}", func1, func2)
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -87,9 +135,25 @@ impl<'a> From<&'a BranchData> for MergeBranch {
     }
 }
 
+impl fmt::Display for MergeBranch {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "line:{} block:{} branch:{}", self.line, self.block, self.branch)
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub enum BranchError {
     Mismatch(MergeBranch, MergeBranch)
+}
+
+impl fmt::Display for BranchError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &BranchError::Mismatch(ref branch1, ref branch2) => {
+                write!(f, "Branch mismatch: left = {}, right = {}", branch1, branch2)
+            }
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -99,23 +163,19 @@ pub enum TestError {
     Branch(BranchError)
 }
 
-impl From<ChecksumError> for TestError {
-    fn from(error: ChecksumError) -> Self {
-        TestError::Checksum(error)
+impl fmt::Display for TestError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &TestError::Checksum(ref err) => write!(f, "{}", err),
+            &TestError::Function(ref err) => write!(f, "{}", err),
+            &TestError::Branch(ref err) => write!(f, "{}", err)
+        }
     }
 }
 
-impl From<FunctionError> for TestError {
-    fn from(error: FunctionError) -> Self {
-        TestError::Function(error)
-    }
-}
-
-impl From<BranchError> for TestError {
-    fn from(error: BranchError) -> Self {
-        TestError::Branch(error)
-    }
-}
+impl_from_error!(ChecksumError, TestError::Checksum);
+impl_from_error!(FunctionError, TestError::Function);
+impl_from_error!(BranchError, TestError::Branch);
 
 #[derive(Debug)]
 pub enum MergeError {
@@ -124,29 +184,10 @@ pub enum MergeError {
     Process(TestError)
 }
 
-impl From<IOError> for MergeError {
-    fn from(error: IOError) -> Self {
-        MergeError::IO(error)
-    }
-}
-
-impl From<ChecksumError> for MergeError {
-    fn from(error: ChecksumError) -> Self {
-        MergeError::Process(TestError::Checksum(error))
-    }
-}
-
-impl From<FunctionError> for MergeError {
-    fn from(error: FunctionError) -> Self {
-        MergeError::Process(TestError::Function(error))
-    }
-}
-
-impl From<BranchError> for MergeError {
-    fn from(error: BranchError) -> Self {
-        MergeError::Process(TestError::Branch(error))
-    }
-}
+impl_from_error!(IOError, MergeError::IO);
+impl_from_error!(ChecksumError, TestError::Checksum=>MergeError::Process);
+impl_from_error!(FunctionError, TestError::Function=>MergeError::Process);
+impl_from_error!(BranchError, TestError::Branch=>MergeError::Process);
 
 impl From<ParseError> for MergeError {
     fn from(error: ParseError) -> Self {
@@ -157,8 +198,40 @@ impl From<ParseError> for MergeError {
     }
 }
 
-impl From<TestError> for MergeError {
-    fn from(error: TestError) -> Self {
-        MergeError::Process(error)
+impl_from_error!(TestError, MergeError::Process);
+
+impl fmt::Display for MergeError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            &MergeError::IO(ref err) => write!(f, "{}", err),
+            &MergeError::RecordParse(ref err) => write!(f, "{}", err),
+            &MergeError::Process(ref err) => write!(f, "{}", err)
+        }
+    }
+}
+
+
+
+#[cfg(test)]
+mod tests {
+    use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
+
+    #[test]
+    fn merge_error_of_checksum_empty() {
+        let merge_line = MergeLine::new(1, None);
+        let checksum_error = ChecksumError::Empty(merge_line);
+        let test_error = TestError::from(checksum_error);
+        let merge_error = MergeError::from(test_error);
+        assert_eq!(merge_error.to_string(), "No source code checksum: line: 1, checksum: ")
+    }
+
+    #[test]
+    fn merge_error_of_checksum() {
+        let merge_line1 = MergeLine::new(1, Some("xyz".to_string()));
+        let merge_line2 = MergeLine::new(1, Some("zzz".to_string()));
+        let checksum_error = ChecksumError::Mismatch(merge_line1, merge_line2);
+        let test_error = TestError::from(checksum_error);
+        let merge_error = MergeError::from(test_error);
+        assert_eq!(merge_error.to_string(), "Source code checksums do not match: line: 1, left: xyz, right: zzz")
     }
 }

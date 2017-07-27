@@ -150,10 +150,7 @@ mod tests {
         let mut parse = ReportMerger::new();
         let result = parse.merge(&[ report_path, report_path ]).unwrap_err();
 
-        let checksum_error = ChecksumError::Empty(MergeLine {
-            line: 6,
-            checksum: None
-        });
+        let checksum_error = ChecksumError::Empty(MergeLine::new(6, None));
         let test_error = TestError::from(checksum_error);
 
         // see pull request

@@ -59,3 +59,21 @@ macro_rules! impl_try_merge {
         }
     };
 }
+
+#[macro_export]
+macro_rules! impl_from_error {
+    ($from:ty, $dest:ident::$item:ident) => {
+        impl ::std::convert::From<$from> for $dest {
+            fn from(error: $from) -> Self {
+                $dest::$item(error)
+            }
+        }
+    };
+    ($from:ty, $nest_dest:ident::$nest_item:ident=>$dest:ident::$item:ident) => {
+        impl From<$from> for MergeError {
+            fn from(error: $from) -> Self {
+                $dest::$item($nest_dest::$nest_item(error))
+            }
+        }
+    }
+}
