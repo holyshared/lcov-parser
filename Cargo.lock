@@ -2,7 +2,7 @@
 name = "lcov-parser"
 version = "3.0.1-beta"
 dependencies = [
- "combine 2.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "combine 2.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -13,7 +13,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "combine"
-version = "2.3.2"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "ascii 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -42,7 +42,7 @@ dependencies = [
 
 [metadata]
 "checksum ascii 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)" = "3ae7d751998c189c1d4468cf0a39bb2eae052a9c58d50ebb3b9591ee3813ad50"
-"checksum combine 2.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "0d4e2b2f3e0e68b531bd90f79c0c897f2da8de4109fc1dd7cd427990621dd2d0"
+"checksum combine 2.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9d48b4a5b824c441d0a5194e2aa63491d1c9e5aa2acc5f6e4924f990715afa2a"
 "checksum libc 0.2.23 (registry+https://github.com/rust-lang/crates.io-index)" = "e7eb6b826bfc1fdea7935d46556250d1799b7fe2d9f7951071f4291710665e3e"
 "checksum rand 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "022e0636ec2519ddae48154b028864bdce4eaf7d35226ab8e65c611be97b189d"
 "checksum tempdir 0.3.5 (registry+https://github.com/rust-lang/crates.io-index)" = "87974a6f5c1dfb344d733055601650059a3363de2a6104819293baff662132d6"

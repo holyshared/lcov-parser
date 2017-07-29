@@ -15,6 +15,28 @@ use std::path::Path;
 use report::*;
 use self::ops::MergeError;
 
+/// Merge reports
+///
+/// # Examples
+///
+/// ```
+/// use lcov_parser::merge_files;
+///
+/// let trace_files = [
+///    "tests/fixtures/merge/fixture.info",
+///    "tests/fixtures/merge/fixture.info"
+/// ];
+/// let _ = match merge_files(&trace_files) {
+///     Ok(report) => {
+///         let result = report.save_as("/tmp/merged_report.info");
+///         match result {
+///             Ok(_) => println!("saved"),
+///             Err(err) => println!("{}", err)
+///         }
+///     },
+///     Err(err) => println!("{}", err)
+/// };
+/// ```
 pub fn merge_files<T: AsRef<Path>>(files: &[T]) -> Result<Report, MergeError> {
     let mut merger = ReportMerger::new();
     merger.merge(files)
