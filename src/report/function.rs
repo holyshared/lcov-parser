@@ -86,7 +86,7 @@ impl<'a> TryMerge<&'a FunctionData> for Functions {
             );
             return Ok(());
         }
-        let mut function = self.functions.get_mut(&function_data.name).unwrap();
+        let function = self.functions.get_mut(&function_data.name).unwrap();
         function.try_merge(function_data)
     }
 }
@@ -103,7 +103,7 @@ impl<'a> TryMerge<&'a FunctionNameRecord> for Functions {
             );
             return Ok(());
         }
-        let mut function = self.functions.get_mut(&function_name.name).unwrap();
+        let function = self.functions.get_mut(&function_name.name).unwrap();
         function.try_merge(function_name)
     }
 }

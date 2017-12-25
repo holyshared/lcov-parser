@@ -65,7 +65,7 @@ impl<'a> TryMerge<(&'a SourceFile, &'a File)> for Files {
             self.files.insert(source_file.0.clone(), source_file.1.clone());
             return Ok(());
         }
-        let mut file = self.files.get_mut(source_file.0).unwrap();
+        let file = self.files.get_mut(source_file.0).unwrap();
         file.try_merge(source_file.1)
     }
 }
