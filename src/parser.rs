@@ -70,6 +70,24 @@ impl From<RecordParseError> for ParseError {
     }
 }
 
+impl Error for ParseError {
+    fn description(&self) -> &str {
+        match self {
+            &ParseError::IOError(ref err) => err.description(),
+            &ParseError::RecordParseError(ref err) => err.description(),
+        }
+    }
+}
+
+impl Display for ParseError {
+    fn fmt(&self, formatter: &mut Formatter) -> FormatResult {
+        match self {
+            &ParseError::IOError(ref err) => err.fmt(formatter),
+            &ParseError::RecordParseError(ref err) => err.fmt(formatter),
+        }
+    }
+}
+
 /// Parse the record one line at a time
 ///
 /// # Examples
