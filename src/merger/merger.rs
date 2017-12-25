@@ -145,6 +145,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn merge_checksum_error() {
         let report_path = "tests/fixtures/merge/without_checksum_fixture.info";
         let mut parse = ReportMerger::new();
