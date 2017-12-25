@@ -80,15 +80,16 @@ impl<'a> TryMerge<&'a Line> for Line {
     type Err = ChecksumError;
 
     fn try_merge(&mut self, other: &'a Line) -> MergeResult<Self::Err> {
-        if !other.has_checkshum() {
-            return Err(ChecksumError::Empty(MergeLine::from(other)));
-        }
-
-        if self.checksum.as_ref() != other.checksum() {
-            return Err(ChecksumError::Mismatch(
-                MergeLine::from(&self.clone()),
-                MergeLine::from(other)
-            ));
+        if let Some(o) = other.checksum() {
+            if let Some(ref s) = self.checksum {
+                if s != o {
+                    return Err(ChecksumError::Mismatch(
+                        MergeLine::from(&self.clone()),
+                        MergeLine::from(other)
+                    ));
+                }
+            }
+            self.checksum = Some(o.clone());
         }
         self.execution_count += *other.execution_count();
         Ok(())
