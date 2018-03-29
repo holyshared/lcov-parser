@@ -38,7 +38,7 @@ macro_rules! impl_try_merge_self_summary {
                         self.$field.insert(key.clone(), other_value.clone());
                         continue;
                     }
-                    let mut value = self.$field.get_mut(key).unwrap();
+                    let value = self.$field.get_mut(key).unwrap();
                     let _ = value.try_merge(other_value)?;
                 }
                 Ok(())

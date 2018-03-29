@@ -177,7 +177,7 @@ impl<'a> TryMerge<&'a LineData> for Lines {
             self.lines.insert(line_data.line, Line::from(line_data));
             return Ok(());
         }
-        let mut line = self.lines.get_mut(&line_data.line).unwrap();
+        let line = self.lines.get_mut(&line_data.line).unwrap();
         line.try_merge(line_data)
     }
 }

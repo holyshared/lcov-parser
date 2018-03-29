@@ -102,7 +102,7 @@ impl<'a> TryMerge<(&'a String, &'a LineData)> for Tests {
         if !self.tests.contains_key(line_data.0) {
             self.tests.insert(line_data.0.clone(), Test::new());
         }
-        let mut test = self.tests.get_mut(line_data.0).unwrap();
+        let test = self.tests.get_mut(line_data.0).unwrap();
         TryMerge::try_merge(test, line_data.1)
     }
 }
@@ -114,7 +114,7 @@ impl<'a> TryMerge<(&'a String, &'a FunctionName)> for Tests {
         if !self.tests.contains_key(function_name.0) {
             self.tests.insert(function_name.0.clone(), Test::new());
         }
-        let mut test = self.tests.get_mut(function_name.0).unwrap();
+        let test = self.tests.get_mut(function_name.0).unwrap();
         TryMerge::try_merge(test, function_name.1)
     }
 }
@@ -126,7 +126,7 @@ impl<'a> TryMerge<(&'a String, &'a FunctionData)> for Tests {
         if !self.tests.contains_key(function_data.0) {
             self.tests.insert(function_data.0.clone(), Test::new());
         }
-        let mut test = self.tests.get_mut(function_data.0).unwrap();
+        let test = self.tests.get_mut(function_data.0).unwrap();
         TryMerge::try_merge(test, function_data.1)
     }
 }
@@ -138,7 +138,7 @@ impl<'a> TryMerge<(&'a String, &'a BranchData)> for Tests {
         if !self.tests.contains_key(branch_data.0) {
             self.tests.insert(branch_data.0.clone(), Test::new());
         }
-        let mut test = self.tests.get_mut(branch_data.0).unwrap();
+        let test = self.tests.get_mut(branch_data.0).unwrap();
         TryMerge::try_merge(test, branch_data.1)
     }
 }

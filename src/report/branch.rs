@@ -223,7 +223,7 @@ impl<'a> TryMerge<&'a BranchData> for BranchBlocks {
             self.blocks.insert(unit, Branch::from(data));
             return Ok(());
         }
-        let mut block = self.blocks.get_mut(&unit).unwrap();
+        let block = self.blocks.get_mut(&unit).unwrap();
         block.try_merge(data)
     }
 }
@@ -298,7 +298,7 @@ impl<'a> TryMerge<&'a BranchData> for Branches {
 
     fn try_merge(&mut self, data: &'a BranchData) -> MergeResult<Self::Err> {
         if self.branches.contains_key(&data.line) {
-            let mut blocks = self.branches.get_mut(&data.line).unwrap();
+            let blocks = self.branches.get_mut(&data.line).unwrap();
             blocks.try_merge(data)
         } else {
             let blocks = {
