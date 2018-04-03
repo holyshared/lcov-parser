@@ -125,6 +125,7 @@ mod tests {
     use self::tempdir::TempDir;
     use merger::*;
     use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
+    use report::summary::{ Summary };
     use std::fs::File;
     use std::io::*;
 
@@ -142,6 +143,25 @@ mod tests {
 
             assert_eq!(file_path.as_path().exists(), true);
         }
+    }
+
+    #[test]
+    fn merge_checksum() {
+        let report = {
+            let report_path1 = "tests/fixtures/merged/both_with_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/both_with_checksum/fixture2.info";
+
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path1, report_path2 ]).unwrap()
+        };
+
+        let file = report.get("/fixture1.c").unwrap();
+        let test = file.get_test(&"example".to_string()).unwrap();
+        let lines = test.lines();
+        let line = lines.get(&6).unwrap();
+
+        assert_eq!(line.execution_count(), &2);
+        assert_eq!(line.checksum(), Some(&"PF4Rz2r7RTliO9u6bZ7h6g".to_string()));
     }
 
     #[test]
