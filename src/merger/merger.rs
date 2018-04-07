@@ -120,30 +120,9 @@ impl ReportMerger {
 
 #[cfg(test)]
 mod tests {
-    extern crate tempdir;
-
-    use self::tempdir::TempDir;
     use merger::*;
     use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
     use report::summary::{ Summary };
-    use std::fs::File;
-    use std::io::*;
-
-    #[test]
-    fn save_as() {
-        let report_path = "tests/fixtures/merge/fixture.info";
-
-        let mut parse = ReportMerger::new();
-        let report = parse.merge(&[ report_path ]).unwrap();
-
-        {
-            let tmp_dir = TempDir::new("report").expect("create temp dir");
-            let file_path = tmp_dir.path().join("report.lcov");
-            let _ = report.save_as(file_path.clone()).unwrap();
-
-            assert_eq!(file_path.as_path().exists(), true);
-        }
-    }
 
     #[test]
     fn merge_checksum() {
@@ -222,20 +201,5 @@ mod tests {
             },
             _ => false
         })
-    }
-
-    #[test]
-    fn display() {
-        let report_path = "tests/fixtures/merge/fixture.info";
-        let readed_file_content = {
-            let mut output = String::new();
-            let mut f = File::open(report_path).unwrap();
-            let _ = f.read_to_string(&mut output);
-            output
-        };
-        let mut parse = ReportMerger::new();
-        let report = parse.merge(&[ report_path ]).unwrap();
-
-        assert_eq!(report.to_string(), readed_file_content);
     }
 }
