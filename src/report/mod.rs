@@ -72,3 +72,58 @@ impl fmt::Display for Report {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate tempdir;
+
+    use self::tempdir::TempDir;
+    use record::{ LineData, FunctionData, BranchData };
+    use report::test::{ Tests };
+    use report::file;
+    use report::{ Report };
+    use merger::ops:: { TryMerge };
+    use std::fs::File;
+    use std::io::*;
+
+    fn build_report() -> Report {
+        let mut tests = Tests::new();
+        let line_data = &LineData { line: 1, count: 1, checksum: None };
+        let function_data = &FunctionData { name: "main".to_string(), count: 1 };
+        let branch_data = &BranchData { line: 1, block: 1, branch: 1, taken: 1 };
+        let test_name = "test1".to_string();
+
+        tests.try_merge((&test_name, line_data)).unwrap();
+        tests.try_merge((&test_name, function_data)).unwrap();
+        tests.try_merge((&test_name, branch_data)).unwrap();
+
+        let file = file::File::new(tests);
+        let mut files = file::Files::new();
+        files.try_merge((&"a.c".to_string(), &file)).unwrap();
+
+        Report::new(files)
+    }
+
+    #[test]
+    fn save_as() {
+        let report = build_report();
+        let tmp_dir = TempDir::new("report").expect("create temp dir");
+        let file_path = tmp_dir.path().join("report.lcov");
+        let _ = report.save_as(file_path.clone()).unwrap();
+
+        assert_eq!(file_path.as_path().exists(), true);
+    }
+
+    #[test]
+    fn display() {
+        let report = build_report();
+        let report_path = "tests/fixtures/report/report.info";
+        let readed_file_content = {
+            let mut output = String::new();
+            let mut f = File::open(report_path).unwrap();
+            let _ = f.read_to_string(&mut output);
+            output
+        };
+        assert_eq!(report.to_string(), readed_file_content);
+    }
+}
