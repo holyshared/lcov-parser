@@ -177,6 +177,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn merge_checksum_error() {
         let result = {
             let report_path1 = "tests/fixtures/merged/ne_checksum/fixture1.info";
