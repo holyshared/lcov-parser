@@ -148,8 +148,8 @@ mod tests {
     #[test]
     fn merge_checksum() {
         let report = {
-            let report_path1 = "tests/fixtures/merged/both_with_checksum/fixture1.info";
-            let report_path2 = "tests/fixtures/merged/both_with_checksum/fixture2.info";
+            let report_path1 = "tests/fixtures/merged/eq_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/eq_checksum/fixture2.info";
 
             let mut parse = ReportMerger::new();
             parse.merge(&[ report_path1, report_path2 ]).unwrap()
