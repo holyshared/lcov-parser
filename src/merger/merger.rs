@@ -125,6 +125,7 @@ mod tests {
     use self::tempdir::TempDir;
     use merger::*;
     use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
+    use report::summary::{ Summary };
     use std::fs::File;
     use std::io::*;
 
@@ -145,18 +146,80 @@ mod tests {
     }
 
     #[test]
-    fn merge_checksum_error() {
-        let report_path = "tests/fixtures/merge/without_checksum_fixture.info";
-        let mut parse = ReportMerger::new();
-        let result = parse.merge(&[ report_path, report_path ]).unwrap_err();
+    fn merge_checksum() {
+        let report = {
+            let report_path1 = "tests/fixtures/merged/eq_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/eq_checksum/fixture2.info";
 
-        let checksum_error = ChecksumError::Empty(MergeLine::new(6, None));
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path1, report_path2 ]).unwrap()
+        };
+
+        let file = report.get("/fixture1.c").unwrap();
+        let test = file.get_test(&"example".to_string()).unwrap();
+        let lines = test.lines();
+        let line = lines.get(&6).unwrap();
+
+        assert_eq!(line.execution_count(), &2);
+        assert_eq!(line.checksum(), Some(&"PF4Rz2r7RTliO9u6bZ7h6g".to_string()));
+    }
+
+    #[test]
+    fn merge_checksum_one_side() {
+        let check_merged_report = |report: Report| {
+            let file = report.get("/fixture1.c").unwrap();
+            let test = file.get_test(&"example".to_string()).unwrap();
+            let lines = test.lines();
+            let line = lines.get(&4).unwrap();
+
+            assert_eq!(line.execution_count(), &2);
+            assert_eq!(line.checksum(), Some(&"y7GE3Y4FyXCeXcrtqgSVzw".to_string()));
+        };
+
+        // report order: a -> b
+        let report1 = {
+            let report_path1 = "tests/fixtures/merged/one_side_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/one_side_checksum/fixture2.info";
+
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path1, report_path2 ]).unwrap()
+        };
+        check_merged_report(report1);
+
+        // report order: b -> a
+        let report2 = {
+            let report_path1 = "tests/fixtures/merged/one_side_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/one_side_checksum/fixture2.info";
+
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path2, report_path1 ]).unwrap()
+        };
+        check_merged_report(report2);
+    }
+
+    #[test]
+    fn merge_checksum_error() {
+        let result = {
+            let report_path1 = "tests/fixtures/merged/ne_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/ne_checksum/fixture2.info";
+
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path1, report_path2 ]).unwrap_err()
+        };
+
+        let checksum_error = ChecksumError::Mismatch(
+            MergeLine::new(4, Some("y7GE3Y4FyXCeXcrtqgSVzw".to_string())),
+            MergeLine::new(4, Some("invalid".to_string()))
+        );
         let test_error = TestError::from(checksum_error);
 
         // see pull request
         // https://github.com/rust-lang/rust/pull/34192
         assert!(match result {
-            MergeError::Process(err) => err == test_error,
+            MergeError::Process(err) => {
+                println!("raised error: {}", err);
+                err == test_error
+            },
             _ => false
         })
     }
