@@ -184,6 +184,33 @@ mod tests {
     }
 
     #[test]
+    fn merge_checksum_error() {
+        let result = {
+            let report_path1 = "tests/fixtures/merged/ne_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/ne_checksum/fixture2.info";
+
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path1, report_path2 ]).unwrap_err()
+        };
+
+        let checksum_error = ChecksumError::Mismatch(
+            MergeLine::new(4, Some("y7GE3Y4FyXCeXcrtqgSVzw".to_string())),
+            MergeLine::new(4, Some("invalid".to_string()))
+        );
+        let test_error = TestError::from(checksum_error);
+
+        // see pull request
+        // https://github.com/rust-lang/rust/pull/34192
+        assert!(match result {
+            MergeError::Process(err) => {
+                println!("raised error: {}", err);
+                err == test_error
+            },
+            _ => false
+        })
+    }
+
+    #[test]
     fn display() {
         let report_path = "tests/fixtures/merge/fixture.info";
         let readed_file_content = {
