@@ -165,21 +165,22 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
-    fn merge_checksum_error() {
-        let report_path = "tests/fixtures/merge/without_checksum_fixture.info";
-        let mut parse = ReportMerger::new();
-        let result = parse.merge(&[ report_path, report_path ]).unwrap_err();
+    fn merge_checksum_one_side() {
+        let report = {
+            let report_path1 = "tests/fixtures/merged/one_side_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/one_side_checksum/fixture2.info";
 
-        let checksum_error = ChecksumError::Empty(MergeLine::new(6, None));
-        let test_error = TestError::from(checksum_error);
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path1, report_path2 ]).unwrap()
+        };
 
-        // see pull request
-        // https://github.com/rust-lang/rust/pull/34192
-        assert!(match result {
-            MergeError::Process(err) => err == test_error,
-            _ => false
-        })
+        let file = report.get("/fixture1.c").unwrap();
+        let test = file.get_test(&"example".to_string()).unwrap();
+        let lines = test.lines();
+        let line = lines.get(&4).unwrap();
+
+        assert_eq!(line.execution_count(), &2);
+        assert_eq!(line.checksum(), Some(&"y7GE3Y4FyXCeXcrtqgSVzw".to_string()));
     }
 
     #[test]
