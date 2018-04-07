@@ -1,6 +1,7 @@
 FILE1 = fixture1.info
 FILE2 = fixture2.info
-MERGED_FILE = merged_fixture.info
+A_FIRST_MERGED_FILE = a_first_merged_fixture.info
+B_FIRST_MERGED_FILE = b_first_merged_fixture.info
 CWD = $(shell pwd)
 
 all: build test clean path
@@ -22,7 +23,8 @@ path:
 	mv $(FILE2) $(FILE2).original
 	sed 's#$(CWD)##' $(FILE1).original > $(FILE1)
 	sed 's#$(CWD)##' $(FILE2).original > $(FILE2)
-	lcov -t example -d . -a $(FILE1) -a $(FILE2) -o $(MERGED_FILE) --checksum --rc=lcov_branch_coverage=1
+	lcov -t example -d . -a $(FILE1) -a $(FILE2) -o $(A_FIRST_MERGED_FILE) --checksum --rc=lcov_branch_coverage=1
+	lcov -t example -d . -a $(FILE2) -a $(FILE1) -o $(B_FIRST_MERGED_FILE) --checksum --rc=lcov_branch_coverage=1
 	rm -rf *.original
 
 clean:

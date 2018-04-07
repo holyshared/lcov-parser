@@ -166,21 +166,35 @@ mod tests {
 
     #[test]
     fn merge_checksum_one_side() {
-        let report = {
+        let check_merged_report = |report: Report| {
+            let file = report.get("/fixture1.c").unwrap();
+            let test = file.get_test(&"example".to_string()).unwrap();
+            let lines = test.lines();
+            let line = lines.get(&4).unwrap();
+
+            assert_eq!(line.execution_count(), &2);
+            assert_eq!(line.checksum(), Some(&"y7GE3Y4FyXCeXcrtqgSVzw".to_string()));
+        };
+
+        // report order: a -> b
+        let report1 = {
             let report_path1 = "tests/fixtures/merged/one_side_checksum/fixture1.info";
             let report_path2 = "tests/fixtures/merged/one_side_checksum/fixture2.info";
 
             let mut parse = ReportMerger::new();
             parse.merge(&[ report_path1, report_path2 ]).unwrap()
         };
+        check_merged_report(report1);
 
-        let file = report.get("/fixture1.c").unwrap();
-        let test = file.get_test(&"example".to_string()).unwrap();
-        let lines = test.lines();
-        let line = lines.get(&4).unwrap();
+        // report order: b -> a
+        let report2 = {
+            let report_path1 = "tests/fixtures/merged/one_side_checksum/fixture1.info";
+            let report_path2 = "tests/fixtures/merged/one_side_checksum/fixture2.info";
 
-        assert_eq!(line.execution_count(), &2);
-        assert_eq!(line.checksum(), Some(&"y7GE3Y4FyXCeXcrtqgSVzw".to_string()));
+            let mut parse = ReportMerger::new();
+            parse.merge(&[ report_path2, report_path1 ]).unwrap()
+        };
+        check_merged_report(report2);
     }
 
     #[test]
