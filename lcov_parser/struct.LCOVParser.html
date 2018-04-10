@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `LCOVParser` struct in crate `lcov_parser`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, LCOVParser">
+
+    <title>lcov_parser::LCOVParser - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle">
+    
+    <link rel="stylesheet" type="text/css" href="../dark.css">
+    <link rel="stylesheet" type="text/css" href="../main.css" id="themeStyle">
+    <script src="../storage.js"></script>
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        <div class="sidebar-menu">&#9776;</div>
+        
+        <p class='location'>Struct LCOVParser</p><div class="sidebar-elems"><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.parse">parse</a><a href="#method.next">next</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-FromFile%3CFile%3E">FromFile&lt;File&gt;</a></div></div><p class='location'><a href='index.html'>lcov_parser</a></p><script>window.sidebarCurrent = {name: 'LCOVParser', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script></div>
+    </nav>
+
+    <div class="theme-picker">
+        <button id="theme-picker" aria-label="Pick another theme!">
+            <img src="../brush.svg" width="18" alt="Pick another theme!">
+        </button>
+        <div id="theme-choices"></div>
+    </div>
+    <script src="../theme.js"></script>
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>lcov_parser</a>::<wbr><a class="struct" href=''>LCOVParser</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/lcov_parser/parser.rs.html#114-117' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct LCOVParser&lt;T&gt; { /* fields omitted */ }</pre><div class='docblock'><p>Parse the record one line at a time</p>
+<h1 id="examples" class="section-header"><a href="#examples">Examples</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>:: { <span class="ident">File</span> };
+<span class="kw">use</span> <span class="ident">lcov_parser</span>:: { <span class="ident">LCOVRecord</span>, <span class="ident">LCOVParser</span> };
+
+<span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">open</span>(<span class="string">&quot;tests/fixtures/parser/report.lcov&quot;</span>).<span class="ident">unwrap</span>();
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">LCOVParser</span>::<span class="ident">new</span>(<span class="ident">s</span>);
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">records</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+
+<span class="kw">loop</span> {
+  <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
+  <span class="kw">match</span> <span class="ident">result</span> {
+    <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=&gt;</span> { <span class="ident">records</span>.<span class="ident">push</span>(<span class="ident">r</span>) },
+    <span class="prelude-val">None</span> <span class="op">=&gt;</span> { <span class="kw">break</span>; }
+  }
+}
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">records</span>[<span class="number">0</span>], <span class="ident">LCOVRecord</span>::<span class="ident">TestName</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>())));</pre>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;T:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/io/trait.Read.html" title="trait std::io::Read">Read</a>&gt; <a class="struct" href="../lcov_parser/struct.LCOVParser.html" title="struct lcov_parser::LCOVParser">LCOVParser</a>&lt;T&gt;</code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/lcov_parser/parser.rs.html#119-159' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>(reader: T) -&gt; Self</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/lcov_parser/parser.rs.html#120-125' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.parse' class="method"><span id='parse.v' class='invisible'><code>pub fn <a href='#method.parse' class='fnname'>parse</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="enum" href="../lcov_parser/enum.LCOVRecord.html" title="enum lcov_parser::LCOVRecord">LCOVRecord</a>&gt;, <a class="enum" href="../lcov_parser/enum.ParseError.html" title="enum lcov_parser::ParseError">ParseError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/lcov_parser/parser.rs.html#126-136' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.next' class="method"><span id='next.v' class='invisible'><code>pub fn <a href='#method.next' class='fnname'>next</a>(&amp;mut self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../lcov_parser/enum.LCOVRecord.html" title="enum lcov_parser::LCOVRecord">LCOVRecord</a>&gt;, <a class="enum" href="../lcov_parser/enum.ParseError.html" title="enum lcov_parser::ParseError">ParseError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/lcov_parser/parser.rs.html#137-146' title='goto source code'>[src]</a></span></h4>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-FromFile%3CFile%3E' class='impl'><span class='in-band'><code>impl <a class="trait" href="../lcov_parser/trait.FromFile.html" title="trait lcov_parser::FromFile">FromFile</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/fs/struct.File.html" title="struct std::fs::File">File</a>&gt; for <a class="struct" href="../lcov_parser/struct.LCOVParser.html" title="struct lcov_parser::LCOVParser">LCOVParser</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/fs/struct.File.html" title="struct std::fs::File">File</a>&gt;</code><a href='#impl-FromFile%3CFile%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/lcov_parser/parser.rs.html#177-182' title='goto source code'>[src]</a></span></h3>
+<div class='docblock'><p>Create a parser from file</p>
+<h1 id="examples-1" class="section-header"><a href="#examples-1">Examples</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">lcov_parser</span>:: { <span class="ident">LCOVParser</span>, <span class="ident">LCOVRecord</span>, <span class="ident">FromFile</span> };
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parser</span> <span class="op">=</span> <span class="ident">LCOVParser</span>::<span class="ident">from_file</span>(<span class="string">&quot;tests/fixtures/parser/report.lcov&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">parser</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
+
+<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">result</span>, <span class="prelude-val">Some</span>(<span class="ident">LCOVRecord</span>::<span class="ident">TestName</span>(<span class="prelude-val">Some</span>(<span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>()))));</pre>
+</div><div class='impl-items'><h4 id='method.from_file' class="method"><span id='from_file.v' class='invisible'><code>fn <a href='../lcov_parser/trait.FromFile.html#tymethod.from_file' class='fnname'>from_file</a>&lt;P:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html" title="trait core::convert::AsRef">AsRef</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.Path.html" title="struct std::path::Path">Path</a>&gt;&gt;(path: P) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/std/io/error/type.Result.html" title="type std::io::error::Result">IOResult</a>&lt;<a class="struct" href="../lcov_parser/struct.LCOVParser.html" title="struct lcov_parser::LCOVParser">LCOVParser</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/std/fs/struct.File.html" title="struct std::fs::File">File</a>&gt;&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/lcov_parser/parser.rs.html#178-181' title='goto source code'>[src]</a></span></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt><kbd>?</kbd></dt>
+                    <dd>Show this help dialog</dd>
+                    <dt><kbd>S</kbd></dt>
+                    <dd>Focus the search field</dd>
+                    <dt><kbd>↑</kbd></dt>
+                    <dd>Move up in search results</dd>
+                    <dt><kbd>↓</kbd></dt>
+                    <dd>Move down in search results</dd>
+                    <dt><kbd>↹</kbd></dt>
+                    <dd>Switch tab</dd>
+                    <dt><kbd>&#9166;</kbd></dt>
+                    <dd>Go to active search result</dd>
+                    <dt><kbd>+</kbd></dt>
+                    <dd>Expand all sections</dd>
+                    <dt><kbd>-</kbd></dt>
+                    <dd>Collapse all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "lcov_parser";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
