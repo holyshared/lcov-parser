@@ -29,16 +29,12 @@ pub trait TryMerge<Rhs=Self> {
 
 #[derive(Debug, PartialEq)]
 pub enum ChecksumError {
-    Empty(MergeLine),
     Mismatch(MergeLine, MergeLine)
 }
 
 impl fmt::Display for ChecksumError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &ChecksumError::Empty(ref line) => {
-                write!(f, "No source code checksum: {}", line)
-            },
             &ChecksumError::Mismatch(ref line1, ref line2) => {
                 write!(f, "Source code checksums do not match: line: {}, left: {}, right: {}",
                     line1.line(),
@@ -215,15 +211,6 @@ impl fmt::Display for MergeError {
 #[cfg(test)]
 mod tests {
     use merger::ops:: { MergeError, TestError, ChecksumError, MergeLine };
-
-    #[test]
-    fn merge_error_of_checksum_empty() {
-        let merge_line = MergeLine::new(1, None);
-        let checksum_error = ChecksumError::Empty(merge_line);
-        let test_error = TestError::from(checksum_error);
-        let merge_error = MergeError::from(test_error);
-        assert_eq!(merge_error.to_string(), "No source code checksum: line: 1, checksum: ")
-    }
 
     #[test]
     fn merge_error_of_checksum() {
